@@ -180,8 +180,23 @@ function calculate_matrix() {
     if (rank_coeff != rank_augmented)
         solution = false;
     else {
-        // Back Substitution
-        var result_matrix = new Array(c - 1);
+        // Unique solution
+        if (rank_augmented == c - 1) {
+            // Back Substitution
+            var result_matrix = new Array(c - 1);
+            result_matrix[c - 2] = matrix[c - 2][c - 1] / matrix[c - 2][c - 2];
+            for (i = c - 3; i >= 0; i--) {
+                var sum = 0;
+                for (j = i + 1; j < c - 1; j++) {
+                    sum += matrix[i][j] * result_matrix[j];
+                }
+                result_matrix[i] = (matrix[i][c - 1] - sum) / matrix[i][i];
+            }
+        }
+        else {
+            // Infinite solution
+
+        }
     }
 
     // printing result
@@ -189,7 +204,7 @@ function calculate_matrix() {
     {
         var text = document.createElement("p");
         text.name = "result";
-        text.innerHTML = "System is inconsistent - no solution exists"
+        text.innerHTML = "System is inconsistent - no solution exists";
         document.body.appendChild(text);
     }
     else {
