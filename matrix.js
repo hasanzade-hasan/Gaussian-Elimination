@@ -72,27 +72,6 @@ function calculate_matrix() {
             counter++;
         }
     }
-    /*
-    // Main Algorithm
-    // Phase I - Upper Triangularisation
-    for(k=0; k<n-1; k++) {
-        for (i = k + 1; i < n; i++) {
-            ratio = matrix[i][k] / matrix[k][k];
-            for (j = k; j<=n; j++)
-                matrix[i][j] = matrix[i][j] - ratio*matrix[k][j];
-        }
-    }
-    // Phase II - Back Substitution
-    var result_matrix = new Array(n);
-    result_matrix[n-1] = matrix[n-1][n] / matrix[n-1][n-1];
-    for (i = n-2; i>=0; i--) {
-        var sum = 0;
-        for (j = i+1; j<n; j++) {
-            sum = sum + matrix[i][j]*result_matrix[j];
-        }
-        result_matrix[i] = (matrix[i][n] - sum) / matrix[i][i];
-    }
-    */
 
     // now matrix is the real matrix that need some changes on it
     var k, ratio;
@@ -195,39 +174,46 @@ function calculate_matrix() {
         }
         else {
             // Infinite solution
-
+            var infinite = true;
         }
     }
 
     // printing result
-    if(!solution)
-    {
+    if(!solution) {
         var text = document.createElement("p");
         text.name = "result";
-        text.innerHTML = "System is inconsistent - no solution exists";
+        text.innerHTML = "<i>System is inconsistent - no solution exists</i>";
         document.body.appendChild(text);
     }
     else {
-        for (i = 0; i < c-1; i++)
-        {
-            var text = document.createElement("input");
-            text.readOnly = true;
-            text.name = "result";
-            text.size = "5";
-            text.value = result_matrix[i];
-            document.body.appendChild(text);
+        if(!infinite) {
+            for (i = 0; i < c-1; i++)
+            {
+                var text = document.createElement("input");
+                text.readOnly = true;
+                text.name = "result";
+                text.size = "5";
+                text.value = result_matrix[i];
+                document.body.appendChild(text);
 
-            para = document.createElement("p");
-            document.body.appendChild(para);
+                para = document.createElement("p");
+                document.body.appendChild(para);
+            }
+
+            var btn = document.createElement("input");
+            btn.id = "show_solution";
+            btn.name = "show_solution";
+            btn.type = "button";
+            btn.value = "Show solution";
+            btn.onclick = saythat;
+            document.body.appendChild(btn);
         }
-
-        var btn = document.createElement("input");
-        btn.id = "show_solution";
-        btn.name = "show_solution";
-        btn.type = "button";
-        btn.value = "Show solution";
-        btn.onclick = saythat;
-        document.body.appendChild(btn);
+        else {
+            var text = document.createElement("p");
+            text.name = "result";
+            text.innerHTML = "<i>System has infinite solution</i>";
+            document.body.appendChild(text);
+        }
     }
 }
 
