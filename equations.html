@@ -14,8 +14,9 @@
     <li><a href="inequalities.html">Inequalities</a></li>
 </ul>
 
+<hr />
+
 <div>
-    <hr />
     <p>Enter the size of matrix:</p>
     <form id="size">
         <input type="text" name="row" size="5" placeholder="row">
@@ -23,6 +24,16 @@
         <input type="text" name="column" size="5" placeholder="col">
         <br /><br />
         <input type="button" value="Generate matrix" onclick="generate_matrix()">
+    </form>
+</div>
+
+<h3>OR</h3>
+
+<div>
+    <p>Input your file containing matrix data:</p>
+    <form action="calculate.php" method="post">
+        <input type="file" name="data" id="data">
+        <input type="submit" name="calculate" value="Calculate">
     </form>
 </div>
 

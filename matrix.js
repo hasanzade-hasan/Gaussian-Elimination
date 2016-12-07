@@ -77,56 +77,59 @@ function calculate_matrix() {
     var k, ratio;
     var pivot_row = 0;
 
+    // find maybe easier way of determining pivot element
     for (i = 0; i < c-1; i++) {
         // look for min non-0 in this column - pivot
-        var pivot_el = Math.abs(matrix[pivot_row][i]);
-        var min_row = pivot_row;
+        if(pivot_row < r) { // r or r-1 ???
+            var pivot_el = Math.abs(matrix[pivot_row][i]);
+            var min_row = pivot_row;
 
-        // if 1st element is 0
-        if(pivot_el == 0) {
-            for (k = pivot_row+1; k < r; k++) {
-                if(matrix[k][i] != 0) {
-                    pivot_el = matrix[k][i];
-                    break;
+            // if 1st element is 0
+            if(pivot_el == 0) {
+                for (k = pivot_row+1; k < r; k++) {
+                    if(matrix[k][i] != 0) {
+                        pivot_el = matrix[k][i];
+                        min_row = k;
+                        break;
+                    }
                 }
             }
-        }
-        // now it is non-0 (if there was other non-0 element in column)
-        for (k = pivot_row+1; k < r; k++) {
-            if (Math.abs(matrix[k][i]) < pivot_el && matrix[k][i] != 0) {
-                pivot_el = Math.abs(matrix[k][i]);
-                min_row = k;
-            }
-        }
-
-        // swap pivot row with current row, consider equality case
-        if(pivot_row != min_row) {
-            var tmp = matrix[min_row];
-            matrix[min_row] = matrix[pivot_row];
-            matrix[pivot_row] = tmp;
-        }
-        // can be done much better by ignoring 0's like this, check & do later
-        // for (k = i; k < c; k++) {
-        //     var temp = matrix[max_row][k];
-        //     matrix[max_row][k] = matrix[i][k];
-        //     matrix[i][k] = temp;
-        // }
-
-
-        // Upper Triangularisation
-        if(matrix[pivot_row][i] == 0) {
-            continue;
-        }
-        else {
+            // now it is non-0 (if there was other non-0 element in column)
             for (k = pivot_row+1; k < r; k++) {
-                ratio = matrix[k][i] / matrix[pivot_row][i];
-                for (j = i; j < c; j++)
-                    matrix[k][j] -= ratio*matrix[pivot_row][j]; // can be done a bit better by making 1st el 0 directly
+                if (Math.abs(matrix[k][i]) < pivot_el && matrix[k][i] != 0) {
+                    pivot_el = Math.abs(matrix[k][i]);
+                    min_row = k;
+                }
             }
-            pivot_row++;
+
+            // swap pivot row with current row, consider equality case
+            if(pivot_row != min_row) {
+                var tmp = matrix[min_row];
+                matrix[min_row] = matrix[pivot_row];
+                matrix[pivot_row] = tmp;
+            }
+            // can be done much better by ignoring 0's like this, check & do later
+            // for (k = i; k < c; k++) {
+            //     var temp = matrix[max_row][k];
+            //     matrix[max_row][k] = matrix[i][k];
+            //     matrix[i][k] = temp;
+            // }
+
+
+            // Upper Triangularisation
+            if(matrix[pivot_row][i] == 0) {
+                continue;
+            }
+            else {
+                for (k = pivot_row+1; k < r; k++) {
+                    ratio = matrix[k][i] / matrix[pivot_row][i];
+                    for (j = i; j < c; j++)
+                        matrix[k][j] -= ratio*matrix[pivot_row][j]; // can be done a bit better by making 1st el 0 directly
+                }
+                pivot_row++;
+            }
         }
     }
-
     // checking rank to see consistency
     // try to do this by much more efficient way, maybe starting from end might be great
     var rank_augmented = r;
@@ -175,6 +178,23 @@ function calculate_matrix() {
         else {
             // Infinite solution
             var infinite = true;
+            // finding free variables has some problems - not working properly
+            var no_free_var = c-1 - rank_augmented; // number of free(independent) variables
+            var free_var = new Array();
+            var row = 0;
+            //var col = 0;
+            for(i = 0; i < c-1 && row < r; i++) {
+                if (matrix[row][i] == 0) {
+                    free_var.push(i+1);
+                }
+                else
+                    row++;
+            }
+            if(free_var.length != no_free_var) {
+                for(i = rank_augmented; i < c-1; i++){
+                    free_var.push(i+1);
+                }
+            }
         }
     }
 
@@ -213,6 +233,13 @@ function calculate_matrix() {
             text.name = "result";
             text.innerHTML = "<i>System has infinite solution</i>";
             document.body.appendChild(text);
+            for(i = 0; i < free_var.length; i++) {
+                var text = document.createElement("p");
+                text.name = "result";
+                //text.innerHTML = "<i>System has infinite solution</i>";
+                text.innerHTML = "X" + free_var[i] + " is free variable <br>";
+                document.body.appendChild(text);
+            }
         }
     }
 }
