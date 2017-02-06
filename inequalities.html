@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Inequalities</title>
     <link rel="stylesheet" type="text/css" href="general.css"/>
+    <script type="text/javascript" src="inequalities_matrix.js" ></script>
 </head>
 <body>
 <h1 align="center">Gaussian Elimination Tool</h1>
@@ -16,8 +17,18 @@
     </ul>
 </div>
 
-<div id="coming">
-    <h3>COMING SOON...</h3>
+<hr/>
+
+<div>
+    <form id="size">
+        <p>Enter the number of variables:
+            <input type="text" name="no_var" size="5">
+        </p>
+        <p>Enter the number of constraints (inequalities):
+            <input type="text" name="no_ineq" size="5">
+        </p>
+        <input type="button" value="Create empty system" name="system" onclick="generate_matrix()">
+    </form>
 </div>
 
 </body>

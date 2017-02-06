@@ -1,4 +1,4 @@
-<script type="text/javascript" src="matrix.js" ></script>
+<script type="text/javascript" src="equations_matrix.js" ></script>
 
 <?php
 /**
@@ -160,3 +160,4 @@
 //        echo "<br>";
 //    }
 ?>
+
