@@ -1,7 +1,107 @@
 /**
  * Created by Hasan on 04/11/2016.
  */
+//=====================================================================================================================
+/** @Expression class for storing the free variables and other ones depending on them
+ * constructor takes list(array) of variables and corresponding list(array) of coefficients
+ * has 4 general operations as methods: add(), sub(), mul(), div()
+ * and show() method to display the expression itself
+ */
+{
+    function Expression(coeff, variable) {
+        // coeff and variable are both arrays of the same size
+        this.coeff = coeff;
+        this.variable = variable;
+        this.show = show;
+        this.add = addExp;
+        this.sub = subExp;
+        this.mul = mulExp;
+        this.div = divExp;
+    }
 
+    function show() {
+        var result = "";
+        for (var i = 0; i < this.variable.length; i++) {
+            if (this.coeff[i] > 0) {
+                if (i === 0) {
+                    if (this.coeff[i] == 1)
+                        result += this.variable[i];
+                    else
+                        result += this.coeff[i] + this.variable[i];
+                }
+                else {
+                    if (this.coeff[i] == 1)
+                        result += "+" + this.variable[i];
+                    else
+                        result += "+" + this.coeff[i] + this.variable[i];
+                }
+            }
+            else if (this.coeff[i] < 0) {
+                if (this.coeff[i] == -1)
+                    result += "-" + this.variable[i];
+                else
+                    result += this.coeff[i] + this.variable[i];
+            }
+        }
+        return result;
+    }
+
+    function addExp(n) {
+        var newVar = this.variable.slice();
+        var newCoeff = this.coeff.slice();
+        for (var i = 0; i < n.variable.length; i++) {
+            if (this.variable.indexOf(n.variable[i]) > -1) {
+                newCoeff[this.variable.indexOf(n.variable[i])] =
+                    this.coeff[this.variable.indexOf(n.variable[i])] + n.coeff[i];
+            }
+            else {
+                newVar.push(n.variable[i]);
+                newCoeff.push(n.coeff[i]);
+            }
+        }
+        return new Expression(newCoeff, newVar);
+    }
+
+// subtraction is a bit different
+    function subExp(n) {
+        var newVar = this.variable.slice();
+        var newCoeff = this.coeff.slice();
+        for (var i = 0; i < n.variable.length; i++) {
+            if (this.variable.indexOf(n.variable[i]) > -1) {
+                newCoeff[this.variable.indexOf(n.variable[i])] =
+                    this.coeff[this.variable.indexOf(n.variable[i])] - n.coeff[i];
+            }
+            else {
+                newVar.push(n.variable[i]);
+                newCoeff.push(-1 * n.coeff[i]);
+            }
+        }
+        return new Expression(newCoeff, newVar);
+    }
+
+// we will need multiplication with numbers only
+    function mulExp(n) {
+        var newVar = this.variable.slice();
+        var newCoeff = this.coeff.slice();
+        for (var i = 0; i < this.variable.length; i++) {
+            newCoeff[i] *= n;
+        }
+
+        return new Expression(newCoeff, newVar);
+    }
+
+// division is similar to multiplication
+    function divExp(n) {
+        var newVar = this.variable.slice();
+        var newCoeff = this.coeff.slice();
+        for (var i = 0; i < this.variable.length; i++) {
+            newCoeff[i] /= n;
+        }
+
+        return new Expression(newCoeff, newVar);
+    }
+}
+//=====================================================================================================================
 function generate_matrix() {
     // getting the row and column numbers
     var row = parseInt(document.getElementById("size").elements[0].value);
@@ -49,7 +149,7 @@ function generate_matrix() {
     // para.id = "show";
     // document.body.appendChild(para);
 }
-
+//=====================================================================================================================
 function calculate_matrix() {
     var para = document.createElement("p");
     para.id = "result_matrix";
@@ -178,21 +278,56 @@ function calculate_matrix() {
         else {
             // Infinite solution
             var infinite = true;
-            // finding free variables has some problems - not working properly
-            var no_free_var = c-1 - rank_augmented; // number of free(independent) variables
-            var free_var = new Array();
-            var row = 0;
-            //var col = 0;
-            for(i = 0; i < c-1 && row < r; i++) {
-                if (matrix[row][i] == 0) {
-                    free_var.push(i+1);
+            //var no_free_var = c-1 - rank_augmented; // number of free(independent) variables
+
+            // Back Substitution
+            var result_matrix = new Array(c - 1);
+            //result_matrix[c - 2] = matrix[c - 2][c - 1] / matrix[c - 2][c - 2];
+
+            var row = rank_augmented-1;
+            // for the last variable i = c-2;
+            // i = c-2;
+            var flag = false; // means no free variable
+            for(j = c-3; j >= 0; j--) {
+                if(matrix[row][j] != 0){
+                    flag = true;
+                    break;
                 }
-                else
-                    row++;
             }
-            if(free_var.length != no_free_var) {
-                for(i = rank_augmented; i < c-1; i++){
-                    free_var.push(i+1);
+            if(flag) { // this is free variable
+                result_matrix[c-2] = new Expression([1], ['X' + (c-1)]); //better if can display number in index of X
+            }
+            else { // not a free variable
+                result_matrix[c-2] = new Expression([matrix[row][c-1]/matrix[row][c-2]], ['']);
+                row--;
+            }
+
+            //for (i = c - 3; i >= 0; i--) {
+            //    var sum = 0;
+            //    for (j = i + 1; j < c - 1; j++) {
+            //        sum += matrix[i][j] * result_matrix[j];
+            //    }
+            //    result_matrix[i] = (matrix[i][c - 1] - sum) / matrix[i][i];
+            //}
+            for(i = c-3; i >= 0; i--) {
+                flag = false;
+                for(j = i-1; j >= 0; j--) {
+                    if(matrix[row][j] != 0){
+                        flag = true;
+                        break;
+                    }
+                }
+                if(flag) { // this is free variable
+                    result_matrix[i] = new Expression([1], ['X' + (i+1)]);
+                }
+                else { // not a free variable
+                    var sum = new Expression([0], ['']);
+                    for(k = i+1; k < c-1; k++) {
+                        sum = sum.add(result_matrix[k].mul(matrix[row][k]));
+                    }
+                    var temp1 = new Expression([matrix[row][c-1]], ['']);
+                    result_matrix[i] = (temp1.sub(sum)).div(matrix[row][i]);
+                    row--;
                 }
             }
         }
@@ -229,21 +364,30 @@ function calculate_matrix() {
             document.body.appendChild(btn);
         }
         else {
-            var text = document.createElement("p");
-            text.name = "result";
-            text.innerHTML = "<i>System has infinite solution</i>";
-            document.body.appendChild(text);
-            for(i = 0; i < free_var.length; i++) {
-                var text = document.createElement("p");
+            for (i = 0; i < c-1; i++)
+            {
+                var text = document.createElement("input");
+                text.readOnly = true;
                 text.name = "result";
-                //text.innerHTML = "<i>System has infinite solution</i>";
-                text.innerHTML = "X" + free_var[i] + " is free variable <br>";
+                text.size = "10";
+                text.value = result_matrix[i].show();
                 document.body.appendChild(text);
+
+                para = document.createElement("p");
+                document.body.appendChild(para);
             }
+
+            var btn = document.createElement("input");
+            btn.id = "show_solution";
+            btn.name = "show_solution";
+            btn.type = "button";
+            btn.value = "Show solution";
+            btn.onclick = saythat;
+            document.body.appendChild(btn);
         }
     }
 }
-
+//=====================================================================================================================
 function saythat() {
     alert("This is coming soon");
 }
