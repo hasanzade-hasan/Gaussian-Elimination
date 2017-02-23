@@ -91,11 +91,6 @@ function generate_matrix() {
 
 // allows us to read all system entries and signs of each inequality
 function evaluate(){
-    var para = document.createElement("p");
-    para.id = "initial_system";
-    document.body.appendChild(para);
-    document.getElementById("initial_system").innerHTML = "<hr> Your system is: ";
-
     var r = parseInt(document.getElementById("size").elements[1].value);
     var c = parseInt(document.getElementById("size").elements[0].value);
     var i, j;
@@ -120,6 +115,101 @@ function evaluate(){
         var sign = selects.item(i);
         signs[i] = sign.options[sign.selectedIndex].value;
     }
+    //alert(display(matrix, signs));
+    var para = document.createElement("p");
+    para.id = "initial_system";
+    document.body.appendChild(para);
+    document.getElementById("initial_system").innerHTML = "<hr> Your system is: " + "<br />" + display(matrix, signs);
+
+    for (i = 0; i < r; i++) {
+        if(signs[i] == "great") {
+            for(j = 0; j < c+1; j++) {
+                matrix[i][j] *= -1;
+            }
+            signs[i] = "less";
+        }
+        else if(signs[i] == "greatEqual") {
+            for(j = 0; j < c+1; j++) {
+                matrix[i][j] *= -1;
+            }
+            signs[i] = "lessEqual";
+        }
+    }
+
+    //convert matrix into standard form
+    standardize(matrix, signs);
+
+    var para = document.createElement("p");
+    para.id = "standard";
+    document.body.appendChild(para);
+    document.getElementById("standard").innerHTML = "<hr> Your system in standard form is: " + "<br />" + display(matrix, signs);
+}
+
+// changing matrix to standard form which is like Ax<b or Ax<=b
+function standardize(matrix, signs) {
+    var r = matrix.length;
+    var c = matrix[0].length;
+    for (var i = 0; i < r; i++) {
+        if(signs[i] == "great") {
+            for(var j = 0; j < c; j++) {
+                matrix[i][j] *= -1;
+            }
+            signs[i] = "less";
+        }
+        else if(signs[i] == "greatEqual") {
+            for(j = 0; j < c; j++) {
+                matrix[i][j] *= -1;
+            }
+            signs[i] = "lessEqual";
+        }
+    }
+}
+// displays system of linear inequalities as it should be - containing also variables X_i
+function display(matrix, signs) {
+    var r = matrix.length;
+    var c = matrix[0].length;
+    var str = "";
+    for(var i = 0; i < r; i++) {
+        for (var j = 0; j < c-1; j++) {
+            if(matrix[i][j] > 0) {
+                if(j == 0) {
+                    if(matrix[i][j] == 1)
+                        str += "X" + (j+1);
+                    else
+                        str += matrix[i][j] + "X" + (j+1);
+                }
+                else {
+                    if(matrix[i][j] == 1)
+                        str += "+X" + (j+1);
+                    else
+                        str += "+" + matrix[i][j] + "X" + (j+1);
+                }
+            }
+            else if(matrix[i][j] < 0) {
+                if(matrix[i][j] == -1)
+                    str += "-X" + (j+1);
+                else
+                    str += matrix[i][j] + "X" + (j+1);
+            }
+        }
+        switch (signs[i]) {
+            case "great":
+                str += " \x3E ";
+                break;
+            case "less":
+                str += " \x3C ";
+                break;
+            case "greatEqual":
+                str += " \u2265 ";
+                break;
+            case "lessEqual":
+                str += " \u2264 ";
+                break;
+        }
+        str += matrix[i][c-1] + "<br />";
+    }
+
+    return str;
 }
 
 function al(){
