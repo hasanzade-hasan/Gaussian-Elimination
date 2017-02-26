@@ -67,7 +67,7 @@ function generate_matrix() {
 
         form.appendChild(select);
 
-        var element = document.createElement("input");
+        element = document.createElement("input");
         element.size = "5";
         element.name = "entry";
         element.type = "text";
@@ -81,97 +81,14 @@ function generate_matrix() {
     // adding button to calculate matrix
     var btn = document.createElement("input");
     btn.type = "button";
-    btn.name = "evaluate";
-    btn.value = "Evaluate";
-    btn.onclick = evaluate;
+    btn.name = "analyse";
+    btn.value = "Analyse system";
+    btn.onclick = analyse;
     form.appendChild(btn);
 
     document.body.appendChild(form);
 }
 
-// allows us to read all system entries and signs of each inequality
-function evaluate() {
-    var r = parseInt(document.getElementById("size").elements[1].value);
-    var c = parseInt(document.getElementById("size").elements[0].value);
-    var i, j;
-    var matrix = new Array(r);
-    for (i = 0; i < r; i++)
-        matrix[i] = new Array(c + 1);
-
-    // getting matrix entries - matrix[][]
-    var entries = document.getElementsByName("entry");
-    var counter = 0;
-    for (i = 0; i < r; i++) {
-        for (j = 0; j < c + 1; j++) {
-            matrix[i][j] = parseFloat(entries.item(counter).value);
-            counter++;
-        }
-    }
-
-    // getting sign of each inequality - signs[]
-    var selects = document.getElementsByName("sign_select");
-    var signs = new Array(r);
-    for (i = 0; i < r; i++) {
-        var sign = selects.item(i);
-        signs[i] = sign.options[sign.selectedIndex].value;
-    }
-    //alert(display(matrix, signs));
-    var para = document.createElement("p");
-    para.id = "initial_system";
-    document.body.appendChild(para);
-    document.getElementById("initial_system").innerHTML = "<hr> System is: " + "<br />" + display(matrix, signs);
-
-    //convert matrix into standard form
-    standardize(matrix, signs);
-
-    var para = document.createElement("p");
-    para.id = "standard";
-    document.body.appendChild(para);
-    document.getElementById("standard").innerHTML = "<hr> System in standard form is: " + "<br />" + display(matrix, signs);
-
-    // get list of eliminable and non-eliminable variables
-    var eliminable = new Array();
-    //var nonEliminable = new Array(); // do I really need that? or just one list is enough?
-    for (j = 0; j < c; j++) {
-        if (matrix[0][j] < 0) {
-            for (i = 1; i < r; i++) {
-                if (matrix[i][j] > 0) {
-                    eliminable.push(j);
-                    break;
-                }
-            }
-        }
-        else if (matrix[0][j] > 0) {
-            for (i = 1; i < r; i++) {
-                if (matrix[i][j] < 0) {
-                    eliminable.push(j);
-                    break;
-                }
-            }
-        }
-    }
-
-    // print eliminable and non-eliminabel variables
-    var strEl = "";
-    var strNonEl = "";
-    for(i = 0; i < c; i++) {
-        if(eliminable.indexOf(i) > -1)
-            strEl += "X" + (i + 1) + ", ";
-        else
-            strNonEl += "X" + (i + 1) + ", ";
-    }
-    var el = document.createElement("p");
-    el.id = "el";
-    document.body.appendChild(el);
-    document.getElementById("el").innerHTML = "Eliminable variables are: {" + strEl.substr(0, strEl.length-2) + "}";
-    var nonEl = document.createElement("p");
-    nonEl.id = "nonEl";
-    document.body.appendChild(nonEl);
-    document.getElementById("nonEl").innerHTML = "Non-Eliminable variables are: {" + strNonEl.substr(0, strNonEl.length-2) + "}";
-
-
-
-}
 // changing matrix to standard form which is like Ax<b or Ax<=b
 function standardize(matrix, signs) {
     var r = matrix.length;
@@ -238,8 +155,230 @@ function display(matrix, signs) {
 
     return str;
 }
+// allows us to read all system entries and signs of each inequality
+function analyse() {
+    var r = parseInt(document.getElementById("size").elements[1].value);
+    var c = parseInt(document.getElementById("size").elements[0].value);
+    var i, j;
+    var matrix = new Array(r);
+    for (i = 0; i < r; i++)
+        matrix[i] = new Array(c + 1);
 
+    // getting matrix entries - matrix[][]
+    var entries = document.getElementsByName("entry");
+    var counter = 0;
+    for (i = 0; i < r; i++) {
+        for (j = 0; j < c + 1; j++) {
+            matrix[i][j] = parseFloat(entries.item(counter).value);
+            counter++;
+        }
+    }
 
-function al(){
-    alert("soon");
+    // getting sign of each inequality - signs[]
+    var selects = document.getElementsByName("sign_select");
+    var signs = new Array(r);
+    for (i = 0; i < r; i++) {
+        var sign = selects.item(i);
+        signs[i] = sign.options[sign.selectedIndex].value;
+    }
+    //alert(display(matrix, signs));
+    var para = document.createElement("p");
+    para.id = "initial_system";
+    document.body.appendChild(para);
+    document.getElementById("initial_system").innerHTML = "<hr> System is: " + "<br />" + display(matrix, signs);
+
+    //convert matrix into standard form
+    standardize(matrix, signs);
+
+    para = document.createElement("p");
+    para.id = "standard";
+    document.body.appendChild(para);
+    document.getElementById("standard").innerHTML = "<hr> System in standard form is: " + "<br />" + display(matrix, signs);
+
+    // get list of eliminable and non-eliminable variables
+    var eliminable = [];
+    var nonEliminable = [];
+    //var nonEliminable = new Array(); // do I really need that? or just one list is enough?
+    for (j = 0; j < c; j++) {
+        if (matrix[0][j] < 0) {
+            for (i = 1; i < r; i++) {
+                if (matrix[i][j] > 0) {
+                    eliminable.push(j);
+                    break;
+                }
+            }
+        }
+        else if (matrix[0][j] > 0) {
+            for (i = 1; i < r; i++) {
+                if (matrix[i][j] < 0) {
+                    eliminable.push(j);
+                    break;
+                }
+            }
+        }
+    }
+
+    // print eliminable and non-eliminable variables
+    var strEl = "";
+    var strNonEl = "";
+    for(i = 0; i < c; i++) {
+        if(eliminable.indexOf(i) > -1)
+            strEl += "X" + (i + 1) + ", ";
+        else {
+            strNonEl += "X" + (i + 1) + ", ";
+            nonEliminable.push(i);
+        }
+    }
+    var el = document.createElement("p");
+    el.id = "el";
+    document.body.appendChild(el);
+    document.getElementById("el").innerHTML = "Eliminable variables are: {" + strEl.substr(0, strEl.length-2) + "}";
+    var nonEl = document.createElement("p");
+    nonEl.id = "nonEl";
+    document.body.appendChild(nonEl);
+    document.getElementById("nonEl").innerHTML = "Non-Eliminable variables are: {" + strNonEl.substr(0, strNonEl.length-2) + "}";
+
+    var order = document.createElement("p");
+    order.id = "order";
+    document.body.appendChild(order);
+    document.getElementById("order").innerHTML = "<hr> List variables by id in order to be evaluated. <br/>";
+    var orderEl = document.createElement("p");
+    orderEl.id = "orderEl";
+    document.body.appendChild(orderEl);
+    document.getElementById("orderEl").innerHTML = "Order of eliminable variables: ";
+    for(i = 0; i < eliminable.length; i++) {
+        var element = document.createElement("input");
+        element.size = "5";
+        element.name = "elOrder";
+        element.type = "text";
+        document.body.appendChild(element);
+    }
+
+    var orderNonEl = document.createElement("p");
+    orderNonEl.id = "orderNonEl";
+    document.body.appendChild(orderNonEl);
+    document.getElementById("orderNonEl").innerHTML = "Order of non-eliminable variables: ";
+    for(i = 0; i < nonEliminable.length; i++) {
+        element = document.createElement("input");
+        element.size = "5";
+        element.name = "NonElOrder";
+        element.type = "text";
+        document.body.appendChild(element);
+    }
+
+    para = document.createElement("p");
+    document.body.appendChild(para);
+
+    // adding button to start evaluation
+    var button = document.createElement("input");
+    button.type = "button";
+    button.name = "evaluate";
+    button.value = "Start evaluation";
+    button.onclick = function() {evaluate(matrix, signs, eliminable, nonEliminable)};
+    document.body.appendChild(button);
+}
+
+// matrix multiplication
+function multiply(a, b) {
+    var aRow = a.length, aCol = a[0].length, bCols = b[0].length;
+    var m = [];
+    for (var r = 0; r < aRow; r++) {
+        m[r] = [];
+        for (var c = 0; c < bCols; c++) {
+            m[r][c] = 0;
+            for (var i = 0; i < aCol; i++) {
+                m[r][c] += a[r][i] * b[i][c];
+            }
+        }
+    }
+    return m;
+}
+
+var createMatrix = function (matrix, signs, eliminatingVar) {
+    var r = matrix.length;
+
+    var posMatrix = [];
+    var negMatrix = [];
+    var zeroMatrix = [];
+
+    // consider signs also !!!
+    var posSigns = [];
+    var negSigns = [];
+    var zeroSigns = [];
+
+    for(var i = 0; i < r; i++) {
+        if(matrix[i][eliminatingVar] > 0) {
+            posMatrix.push(matrix[i]);
+            posSigns.push(signs[i]);
+        }
+        else if(matrix[i][eliminatingVar] < 0) {
+            negMatrix.push(matrix[i]);
+            negSigns.push(signs[i]);
+        }
+        else {
+            zeroMatrix.push(matrix[i]);
+            zeroSigns.push(signs[i]);
+        }
+    }
+
+    var mulMatrix = [];
+    var mulSigns = [];
+
+    for(i = 0; i < posMatrix.length; i++) {
+        for (var j = 0; j < negMatrix.length; j++) {
+            var row = new Array(r);
+            row.fill(0);
+            row[i] = -1 * negMatrix[j][eliminatingVar];
+            row[j+posMatrix.length] = posMatrix[i][eliminatingVar];
+            mulMatrix.push(row);
+
+            if(posSigns[i] == "lessEqual" && negSigns[j] == "lessEqual")
+                mulSigns.push("lessEqual");
+            else
+                mulSigns.push("less");
+        }
+    }
+
+    for(i = 0; i < zeroMatrix.length; i++) {
+        // consider 0's here and push to mulMatrix
+        row = new Array(r);
+        row.fill(0);
+        row[r-1] = 1;
+        mulMatrix.push(row);
+        mulSigns.push(zeroSigns[i]);
+    }
+
+    // since I created my mulMatrix according to pos neg and zero, I need to change my matrix for that too
+    var newMatrix = [];
+    for (i = 0; i < posMatrix.length; i++)
+        newMatrix.push(posMatrix[i]);
+    for (i = 0; i < negMatrix.length; i++)
+        newMatrix.push(negMatrix[i]);
+    for (i = 0; i < zeroMatrix.length; i++)
+        newMatrix.push(zeroMatrix[i]);
+
+    return [multiply(mulMatrix, newMatrix), mulSigns];
+};
+// evaluates to find ranges for variables
+function evaluate(matrix, signs, eliminable, nonEliminable){
+    var orderEl = [];
+    var elements = document.getElementsByName("elOrder");
+    for(var i = 0; i < eliminable.length; i++) {
+        orderEl.push(elements.item(i).value);
+    }
+    var orderNonEl = [];
+    elements = document.getElementsByName("NonElOrder");
+    for(i = 0; i < nonEliminable.length; i++) {
+        orderNonEl.push(elements.item(i).value);
+    }
+
+    // elimination order is reverse of evaluation order
+    for(i = orderEl.length-1; i >= 0; i--) { // 2, 3
+        var eliminatingVar = orderEl[i] - 1;
+        var result = createMatrix(matrix, signs, eliminatingVar);
+        matrix = result[0];
+        signs = result[1];
+        alert(matrix);
+        alert(signs);
+    }
 }
