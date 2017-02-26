@@ -90,19 +90,19 @@ function generate_matrix() {
 }
 
 // allows us to read all system entries and signs of each inequality
-function evaluate(){
+function evaluate() {
     var r = parseInt(document.getElementById("size").elements[1].value);
     var c = parseInt(document.getElementById("size").elements[0].value);
     var i, j;
     var matrix = new Array(r);
-    for(i = 0; i < r; i++)
-        matrix[i] = new Array(c+1);
+    for (i = 0; i < r; i++)
+        matrix[i] = new Array(c + 1);
 
     // getting matrix entries - matrix[][]
     var entries = document.getElementsByName("entry");
     var counter = 0;
-    for(i = 0; i < r; i++) {
-        for (j = 0; j < c+1; j++) {
+    for (i = 0; i < r; i++) {
+        for (j = 0; j < c + 1; j++) {
             matrix[i][j] = parseFloat(entries.item(counter).value);
             counter++;
         }
@@ -111,7 +111,7 @@ function evaluate(){
     // getting sign of each inequality - signs[]
     var selects = document.getElementsByName("sign_select");
     var signs = new Array(r);
-    for(i = 0; i < r; i++) {
+    for (i = 0; i < r; i++) {
         var sign = selects.item(i);
         signs[i] = sign.options[sign.selectedIndex].value;
     }
@@ -119,22 +119,7 @@ function evaluate(){
     var para = document.createElement("p");
     para.id = "initial_system";
     document.body.appendChild(para);
-    document.getElementById("initial_system").innerHTML = "<hr> Your system is: " + "<br />" + display(matrix, signs);
-
-    for (i = 0; i < r; i++) {
-        if(signs[i] == "great") {
-            for(j = 0; j < c+1; j++) {
-                matrix[i][j] *= -1;
-            }
-            signs[i] = "less";
-        }
-        else if(signs[i] == "greatEqual") {
-            for(j = 0; j < c+1; j++) {
-                matrix[i][j] *= -1;
-            }
-            signs[i] = "lessEqual";
-        }
-    }
+    document.getElementById("initial_system").innerHTML = "<hr> System is: " + "<br />" + display(matrix, signs);
 
     //convert matrix into standard form
     standardize(matrix, signs);
@@ -142,9 +127,51 @@ function evaluate(){
     var para = document.createElement("p");
     para.id = "standard";
     document.body.appendChild(para);
-    document.getElementById("standard").innerHTML = "<hr> Your system in standard form is: " + "<br />" + display(matrix, signs);
-}
+    document.getElementById("standard").innerHTML = "<hr> System in standard form is: " + "<br />" + display(matrix, signs);
 
+    // get list of eliminable and non-eliminable variables
+    var eliminable = new Array();
+    //var nonEliminable = new Array(); // do I really need that? or just one list is enough?
+    for (j = 0; j < c; j++) {
+        if (matrix[0][j] < 0) {
+            for (i = 1; i < r; i++) {
+                if (matrix[i][j] > 0) {
+                    eliminable.push(j);
+                    break;
+                }
+            }
+        }
+        else if (matrix[0][j] > 0) {
+            for (i = 1; i < r; i++) {
+                if (matrix[i][j] < 0) {
+                    eliminable.push(j);
+                    break;
+                }
+            }
+        }
+    }
+
+    // print eliminable and non-eliminabel variables
+    var strEl = "";
+    var strNonEl = "";
+    for(i = 0; i < c; i++) {
+        if(eliminable.indexOf(i) > -1)
+            strEl += "X" + (i + 1) + ", ";
+        else
+            strNonEl += "X" + (i + 1) + ", ";
+    }
+    var el = document.createElement("p");
+    el.id = "el";
+    document.body.appendChild(el);
+    document.getElementById("el").innerHTML = "Eliminable variables are: {" + strEl.substr(0, strEl.length-2) + "}";
+    var nonEl = document.createElement("p");
+    nonEl.id = "nonEl";
+    document.body.appendChild(nonEl);
+    document.getElementById("nonEl").innerHTML = "Non-Eliminable variables are: {" + strNonEl.substr(0, strNonEl.length-2) + "}";
+
+
+
+}
 // changing matrix to standard form which is like Ax<b or Ax<=b
 function standardize(matrix, signs) {
     var r = matrix.length;
@@ -211,6 +238,7 @@ function display(matrix, signs) {
 
     return str;
 }
+
 
 function al(){
     alert("soon");
