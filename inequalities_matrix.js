@@ -1,6 +1,28 @@
 /**
  * Created by Hasan on 05/02/2017.
  */
+// method for filling fields with values
+function fill(row, col) {
+    var coeff, sign;
+    if(row == 4 && col == 3) {
+        coeff = [[2, -3, 1, 10], [-2, -3, 2, 4], [-3, 1, 3, 14], [3, 1, 0, 5]];
+        sign = ["great", "lessEqual", "less", "greatEqual"];
+    }
+    else if(row == 3 && col == 3) {
+        coeff = [[1, 1, 1, 3], [2, 2, 1, 4], [1, -1, 0, 1]];
+        sign = ["lessEqual", "lessEqual", "lessEqual"];
+    }
+
+    for (var i = 0; i < row; i++) {
+        for (var j = 0; j < col + 1; j++) {
+            var entries = document.getElementsByName("entry");
+            entries.item(i * (col + 1) + j).value = coeff[i][j];
+        }
+
+        var selects = document.getElementsByName("sign_select");
+        selects.item(i).value = sign[i];
+    }
+}
 // allows us to enter system entries and signs for each inequality
 function generate_matrix() {
     // getting the row and column numbers
@@ -78,6 +100,23 @@ function generate_matrix() {
         form.appendChild(para);
     }
 
+    // button for filling fields automatically
+    var btn = document.createElement("input");
+    btn.type = "button";
+    btn.name = "fill";
+    btn.value = "Fill fields with example";
+    btn.onclick = function() {fill(row, col)};
+    form.appendChild(btn);
+
+    //var text = document.createElement("input");
+    //text.type = "text";
+    //text.name = "ex no";
+    //text.size = "5";
+    //form.appendChild(text);
+
+    //para = document.createElement("p");
+    //form.appendChild(para);
+
     // adding button to calculate matrix
     var btn = document.createElement("input");
     btn.type = "button";
@@ -88,7 +127,6 @@ function generate_matrix() {
 
     document.body.appendChild(form);
 }
-
 // changing matrix to standard form which is like Ax<b or Ax<=b
 function standardize(matrix, signs) {
     var r = matrix.length;
@@ -277,7 +315,6 @@ function analyse() {
     button.onclick = function() {evaluate(matrix, signs, eliminable, nonEliminable)};
     document.body.appendChild(button);
 }
-
 // matrix multiplication
 function multiply(a, b) {
     var aRow = a.length, aCol = a[0].length, bCols = b[0].length;
@@ -293,10 +330,11 @@ function multiply(a, b) {
     }
     return m;
 }
-
-var createMatrix = function (matrix, signs, eliminatingVar) {
+// creates the system specific non-negative sparse matrix each time for eliminating variable
+function createMatrix(matrix, signs, eliminatingVar) {
     var r = matrix.length;
 
+    // matrix consists of 3 sub-matrices with respect to each variable
     var posMatrix = [];
     var negMatrix = [];
     var zeroMatrix = [];
@@ -343,7 +381,8 @@ var createMatrix = function (matrix, signs, eliminatingVar) {
         // consider 0's here and push to mulMatrix
         row = new Array(r);
         row.fill(0);
-        row[r-1] = 1;
+        // this is to avoid altering other inequalities which current variable does not exist
+        row[posMatrix.length + negMatrix.length + i] = 1; // keep them same
         mulMatrix.push(row);
         mulSigns.push(zeroSigns[i]);
     }
@@ -358,7 +397,7 @@ var createMatrix = function (matrix, signs, eliminatingVar) {
         newMatrix.push(zeroMatrix[i]);
 
     return [multiply(mulMatrix, newMatrix), mulSigns];
-};
+}
 // evaluates to find ranges for variables
 function evaluate(matrix, signs, eliminable, nonEliminable){
     var orderEl = [];
@@ -373,7 +412,7 @@ function evaluate(matrix, signs, eliminable, nonEliminable){
     }
 
     // elimination order is reverse of evaluation order
-    for(i = orderEl.length-1; i >= 0; i--) { // 2, 3
+    for(i = orderEl.length-1; i >= 0; i--) {
         var eliminatingVar = orderEl[i] - 1;
         var result = createMatrix(matrix, signs, eliminatingVar);
         matrix = result[0];
@@ -381,4 +420,6 @@ function evaluate(matrix, signs, eliminable, nonEliminable){
         alert(matrix);
         alert(signs);
     }
+
+    // now need to deal with the non-eliminable variables and provide range for all variables
 }
