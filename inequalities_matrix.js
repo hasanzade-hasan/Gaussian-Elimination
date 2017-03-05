@@ -455,6 +455,8 @@ function evaluateVariable(matrix, signs, evaluationVar) {
     var up = Math.min(...upperBounds);
     var low = Math.max(...lowerBounds);
 
+    // correct this !!!
+    // if there are many extreme points below sign arrat will give me only first of them, so this might be false x1 >= 5, x1 > 5 => x1 >= 5
     return [up, resultSigns[result.indexOf(up)], low, resultSigns[result.indexOf(low)]];
 }
 
@@ -474,9 +476,6 @@ function evaluate(matrix, signs, eliminable, nonEliminable){
     p.id = "evaluationResult";
     document.body.appendChild(p);
     document.getElementById("evaluationResult").innerHTML = "<hr>";
-
-    var order = orderNonEl.slice();
-    order.push.apply(order, orderEl);
 
     var arrayOfMatrices = [];
     var arrayOfSigns = [];
@@ -499,7 +498,25 @@ function evaluate(matrix, signs, eliminable, nonEliminable){
 }
 
 function evaluateNext(orderNonEl, orderEl, matrix, signs, arrayOfMatrices, arrayOfSigns, callback) {
-    if(orderNonEl.length > 1) {
+    if(orderNonEl.length > 0) {
+        if(orderNonEl.length == 1) {
+            // what if there are all eliminabel variables?
+            // means matrix has at least one non-eliminable variable
+
+            var cloneMatrix = matrix.slice();
+            var cloneSigns = signs.slice();
+
+            // elimination order is reverse of evaluation order for eliminable variables
+            for(var i = orderEl.length-1; i >= 0; i--) {
+                var eliminationVar = orderEl[i] - 1;
+                var result = eliminateVariable(matrix, signs, eliminationVar);
+                matrix = result[0].slice();
+                signs = result[1].slice();
+                arrayOfMatrices.push(matrix.slice());
+                arrayOfSigns.push(signs.slice());
+            }
+        }
+
         var evaluationVar = orderNonEl.shift() - 1; // shift removes 1st element and returns new list
         var leftStr = "";
         var rightStr = "";
@@ -535,6 +552,11 @@ function evaluateNext(orderNonEl, orderEl, matrix, signs, arrayOfMatrices, array
         btn.name = "next";
         btn.value = "next";
         btn.onclick = function(){
+            if(orderNonEl.length == 0) {
+                matrix = cloneMatrix;
+                signs = cloneSigns;
+            }
+
             // consider value in previous text field and change matrix respectively
             var v = document.getElementsByName("valueForVar");
             var val = v.item(v.length - 1).value;
@@ -544,137 +566,29 @@ function evaluateNext(orderNonEl, orderEl, matrix, signs, arrayOfMatrices, array
         };
         document.body.appendChild(btn);
     }
-    else if(orderNonEl.length == 1){
-        console.log(matrix);
-        console.log(signs);
+    else if(orderEl.length > 0){
+        if(orderEl.length == 1) {
+            var myMatrix = matrix;
+            var mySigns = signs;
+        }
+        else {
+            arrayOfMatrices.pop();
+            arrayOfSigns.pop();
 
-        var cloneMatrix = matrix.slice();
-        var cloneSigns = signs.slice();
+            var myMatrix = arrayOfMatrices.pop();
+            var mySigns = arrayOfSigns.pop();
 
-        // elimination order is reverse of evaluation order for eliminable variables
-        for(var i = orderEl.length-1; i >= 0; i--) {
-            var eliminationVar = orderEl[i] - 1;
-            var result = eliminateVariable(matrix, signs, eliminationVar);
-            matrix = result[0].slice();
-            signs = result[1].slice();
-            arrayOfMatrices.push(matrix.slice());
-            arrayOfSigns.push(signs.slice());
+            var values = document.getElementsByName("valueForVar");
+            for(i = 0; i < values.length; i++) {
+                var val = values.item(i);
+                myMatrix = substitute(val.id, val.value, myMatrix);
+            }
         }
 
-        var evaluationVar = orderNonEl.shift() - 1;
-        var leftStr = "";
-        var rightStr = "";
-        var range = evaluateVariable(matrix, signs, evaluationVar);
-        if(range[1] == "less" || range[1] == "lessEqual") {
-            rightStr += range[1] + " " + range[0];
-        }
-        else
-            rightStr += "less Infinity";
-        if(range[3] == "great") {
-            leftStr += range[2] + " " + "less";
-        }
-        else if(range[3] == "greatEqual") {
-            leftStr += range[2] + " " + "lessEqual";
-        }
-        else
-            leftStr += "-Infinity less ";
-
-        var str = leftStr + " X" + (evaluationVar+1) + " " + rightStr;
-        var p = document.createElement("p");
-        p.id = "evaluationVar" + evaluationVar;
-        document.body.appendChild(p);
-        document.getElementById("evaluationVar" + evaluationVar).innerHTML = "Choose value for X" + (evaluationVar+1) + " within range: " + str;
-        var t = document.createElement("input");
-        t.type = "text";
-        t.size = "5";
-        t.name = "valueForVar";
-        t.id = "" + evaluationVar;
-        document.body.appendChild(t);
-
-        var btn = document.createElement("input");
-        btn.type = "button";
-        btn.name = "next";
-        btn.value = "next";
-        btn.onclick = function(){
-            // consider value in previous text field and change matrix respectively
-            var v = document.getElementsByName("valueForVar");
-            var val = v.item(v.length - 1).value;
-            matrix = substitute(evaluationVar, val, cloneMatrix);
-            evaluateNext(orderNonEl, orderEl, matrix, cloneSigns, arrayOfMatrices, arrayOfSigns, callback);
-        };
-        document.body.appendChild(btn);
-        //callback();
-    }
-    else if(orderEl.length > 1){
-        console.log(matrix);
-        console.log(signs);
-
-        arrayOfMatrices.pop();
-        arrayOfSigns.pop();
-
-        var myMatrix = arrayOfMatrices.pop();
-        var mySigns = arrayOfSigns.pop();
-
-        var values = document.getElementsByName("valueForVar");
-        for(i = 0; i < values.length; i++) {
-            var val = values.item(i);
-            myMatrix = substitute(val.id, val.value, myMatrix);
-        }
-
-        //substitute for all known ones and then send for evaluation
-        //substitute(substitutionVar, val, arrayOfMatrices[arrayOfMatrices.length-1]);
-        //
         var evaluationVar = orderEl.shift() - 1;
         var leftStr = "";
         var rightStr = "";
         var range = evaluateVariable(myMatrix, mySigns, evaluationVar);
-        if(range[1] == "less" || range[1] == "lessEqual") {
-            rightStr += range[1] + " " + range[0];
-        }
-        else
-            rightStr += "less Infinity";
-        if(range[3] == "great") {
-            leftStr += range[2] + " " + "less";
-        }
-        else if(range[3] == "greatEqual") {
-            leftStr += range[2] + " " + "lessEqual";
-        }
-        else
-            leftStr += "-Infinity less ";
-
-        var str = leftStr + " X" + (evaluationVar+1) + " " + rightStr;
-        var p = document.createElement("p");
-        p.id = "evaluationVar" + evaluationVar;
-        document.body.appendChild(p);
-        document.getElementById("evaluationVar" + evaluationVar).innerHTML = "Choose value for X" + (evaluationVar+1) + " within range: " + str;
-        var t = document.createElement("input");
-        t.type = "text";
-        t.size = "5";
-        t.name = "valueForVar";
-        t.id = "" + evaluationVar;
-        document.body.appendChild(t);
-
-        var btn = document.createElement("input");
-        btn.type = "button";
-        btn.name = "next";
-        btn.value = "next";
-        btn.onclick = function(){
-            // consider value in previous text field and change matrix respectively
-            var v = document.getElementsByName("valueForVar");
-            var val = v.item(v.length - 1).value;
-            matrix = substitute(evaluationVar, val, matrix);
-            evaluateNext(orderNonEl, orderEl, matrix, signs, arrayOfMatrices, arrayOfSigns, callback);
-        };
-        document.body.appendChild(btn);
-    }
-    else if(orderEl.length == 1){
-        console.log(matrix);
-        console.log(signs);
-
-        var evaluationVar = orderEl.shift() - 1;
-        var leftStr = "";
-        var rightStr = "";
-        var range = evaluateVariable(matrix, signs, evaluationVar);
         if(range[1] == "less" || range[1] == "lessEqual") {
             rightStr += range[1] + " " + range[0];
         }
