@@ -146,7 +146,7 @@
         else {
             echo "Result: <br>";
             for($i = 0; $i < $col-1; $i++) {
-                echo "<input type='text' readonly value='$result_matrix[$i]'/> <br>";
+                echo ($i+1) . ". <input type='text' readonly value='$result_matrix[$i]'/> <br>";
             }
             echo "<input type='button' value='Show solution' onclick='saythat()' />";
         }

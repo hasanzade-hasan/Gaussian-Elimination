@@ -114,8 +114,14 @@ function generate_matrix() {
     document.getElementById("pmatrix").innerHTML = "<hr> Enter matrix entries:";
 
     // creating form for matrix
+    var div = document.createElement("div");
+    div.id = "div-matrix";
+    document.body.appendChild(div);
+
+    // creating form for matrix
     var form = document.createElement("form");
     form.id = "matrix";
+    div.appendChild(form);
 
     // creating free matrix entries
     var i, j;
@@ -124,9 +130,10 @@ function generate_matrix() {
         for (j=0; j<col; j++)
         {
             var element = document.createElement("input");
-            element.size = "5";
+            //element.size = "30";
             element.name = "entry";
             element.type = "text";
+            element.className = "entries";
             form.appendChild(element);
         }
 
@@ -135,19 +142,25 @@ function generate_matrix() {
         form.appendChild(para);
     }
 
+    // adding button for auto generate matrix
+    var btn = document.createElement("input");
+    btn.type = "button";
+    btn.name = "fill";
+    btn.value = "Fill fields with example";
+    btn.id = "fill";
+    btn.onclick = function(){fill(row,col)};
+    form.appendChild(btn);
+
     // adding button to calculate matrix
     var btn = document.createElement("input");
     btn.type = "button";
     btn.name = "calculate";
     btn.value = "Calculate";
+    btn.id = "calculate";
     btn.onclick = calculate_matrix;
     form.appendChild(btn);
 
-    document.body.appendChild(form);
-
-    // var para = document.createElement("p");
-    // para.id = "show";
-    // document.body.appendChild(para);
+    window.location = "equations.html#pmatrix";
 }
 //=====================================================================================================================
 function calculate_matrix() {
@@ -334,11 +347,17 @@ function calculate_matrix() {
     }
 
     // printing result
+    var div = document.createElement("div");
+    div.id = "div-result";
+    document.body.appendChild(div);
+
     if(!solution) {
         var text = document.createElement("p");
         text.name = "result";
+        text.className = "result";
         text.innerHTML = "<i>System is inconsistent - no solution exists</i>";
-        document.body.appendChild(text);
+        div.appendChild(text);
+        //document.body.appendChild(text);
     }
     else {
         if(!infinite) {
@@ -347,12 +366,14 @@ function calculate_matrix() {
                 var text = document.createElement("input");
                 text.readOnly = true;
                 text.name = "result";
-                text.size = "5";
+                text.className = "result";
+                text.size = "20";
                 text.value = result_matrix[i];
-                document.body.appendChild(text);
+                //document.body.appendChild(text);
+                div.appendChild(text);
 
                 para = document.createElement("p");
-                document.body.appendChild(para);
+                div.appendChild(para);
             }
 
             var btn = document.createElement("input");
@@ -361,7 +382,7 @@ function calculate_matrix() {
             btn.type = "button";
             btn.value = "Show solution";
             btn.onclick = saythat;
-            document.body.appendChild(btn);
+            div.appendChild(btn);
         }
         else {
             for (i = 0; i < c-1; i++)
@@ -369,13 +390,20 @@ function calculate_matrix() {
                 var text = document.createElement("input");
                 text.readOnly = true;
                 text.name = "result";
-                text.size = "10";
+                text.className = "result";
+                text.size = "20";
                 text.value = result_matrix[i].show();
-                document.body.appendChild(text);
+                //document.body.appendChild(text);
+                div.appendChild(text);
 
                 para = document.createElement("p");
-                document.body.appendChild(para);
+                div.appendChild(para);
             }
+            var p = document.createElement("p");
+            p.name = "infinite";
+            p.className = "result";
+            p.innerHTML = "<i>System has infinite solutions. Some variables are</i> <br> <i>dependent on others, which are free variables</i>";
+            div.appendChild(p);
 
             var btn = document.createElement("input");
             btn.id = "show_solution";
@@ -383,11 +411,43 @@ function calculate_matrix() {
             btn.type = "button";
             btn.value = "Show solution";
             btn.onclick = saythat;
-            document.body.appendChild(btn);
+            div.appendChild(btn);
         }
     }
+    window.location = "equations.html#div-result";
 }
 //=====================================================================================================================
 function saythat() {
     alert("This is coming soon");
 }
+
+function show(matrix){
+
+}
+
+function display(matrix) {
+    console.log(matrix);
+}
+//=====================================================================================================================
+function fill(row, col) {
+    var coeff;
+    if(row == 3 && col == 4) {
+        coeff = [[1, -2, 3, 7], [2, 1, 1, 4], [-3, 2, -2, -10]];
+    }
+    //else if(row == 3 && col == 3) {
+    //    coeff = [[1, 1, 1, 3], [2, 2, 1, 4], [1, -1, 0, 1]];
+    //    sign = ["lessEqual", "lessEqual", "lessEqual"];
+    //}
+    //else if(row == 5 && col == 2) {
+    //    coeff = [[2, -4, 3], [-1, 1, 4], [1, 0, 5], [1, 0, 9], [1, 1, 3]];
+    //    sign = ["greatEqual", "lessEqual", "great", "great", "great"];
+    //}
+
+    for (var i = 0; i < row; i++) {
+        for (var j = 0; j < col; j++) {
+            var entries = document.getElementsByName("entry");
+            entries.item(i * (row + 1) + j).value = coeff[i][j];
+        }
+    }
+}
+

@@ -1,5 +1,117 @@
-#coming{
-    color: darkgreen;
-    font-family: Palatino;
+*:focus {
+    outline: none;
+}
+
+#eq{
+     padding-top:90px;
+     background-color:#3498db;
+     height:300px;
+     text-align: center;
+
+ }
+#ineq{
+    padding-top:90px;
+    background-color:#9b59b6;
+    height:300px;
     text-align: center;
+
+}
+#eq2{
+    padding-top:10px;
+    background-color:#3498db;
+    height:100px;
+    text-align: center;
+
+}
+#ineq2{
+    padding-top:10px;
+    background-color:#9b59b6;
+    height:100px;
+    text-align: center;
+
+}
+.nostyle{
+     color:white;
+     text-shadow:1px 0px 1px black;
+     text-decoration: none;
+ }
+
+.nostyle:hover{
+    color:white;
+    text-shadow:1px 0px 1px black;
+    text-decoration: none;
+}
+#cencol{
+    text-align: center;
+}
+
+#pmatrix{
+    text-align: center;
+    font-family: 'Baloo', cursive;
+    font-size:30px;
+    color: #34495e;
+}
+#div-matrix{
+    width: 100%;
+    text-align: center;
+}
+#matrix{
+    margin: 0 auto;
+    text-align: center;
+}
+
+.entries{
+    padding:5px;
+    width: 80px;
+    height: 30px;
+    font-family: 'Baloo', cursive;
+    font-size: 18px;
+    text-align: center;
+}
+#fill{
+    padding:5px;
+    height:40px;
+    font-size:18px;
+    background-color:#3498db;
+    color:white;
+    margin:10px;
+    font-family: 'Baloo', cursive;
+    border-radius:5px;
+}
+#calculate{
+    padding:5px;
+    height:40px;
+    font-size:18px;
+    background-color:#3498db;
+    color:white;
+    margin:10px;
+    font-family: 'Baloo', cursive;
+    border-radius:5px;
+}
+#result_matrix{
+    text-align: center;
+    font-family: 'Baloo', cursive;
+    font-size:30px;
+    color: #34495e;
+}
+.result{
+    padding:10px;
+    width: auto;
+    height: 30px;
+    font-family: 'Baloo', cursive;
+    font-size: 18px;
+    text-align: center;
+}
+#div-result{
+    /*width: 100%;*/
+    text-align: center;
+}
+#show_solution{
+    padding:5px;
+    height:40px;font-size:18px;
+    background-color:#3498db;
+    color:white;
+    margin: 30px;
+    font-family: 'Baloo', cursive;
+    border-radius:5px;
 }
