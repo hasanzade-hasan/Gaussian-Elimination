@@ -130,7 +130,6 @@ function generate_matrix() {
         for (j=0; j<col; j++)
         {
             var element = document.createElement("input");
-            //element.size = "30";
             element.name = "entry";
             element.type = "text";
             element.className = "entries";
@@ -146,10 +145,37 @@ function generate_matrix() {
     var btn = document.createElement("input");
     btn.type = "button";
     btn.name = "fill";
-    btn.value = "Fill fields with example";
+    btn.value = "Example 1";
     btn.id = "fill";
     btn.onclick = function(){fill(row,col)};
     form.appendChild(btn);
+    // adding button for auto generate matrix
+    var btn = document.createElement("input");
+    btn.type = "button";
+    btn.name = "fill";
+    btn.value = "Example 2";
+    btn.id = "fill";
+    btn.onclick = function(){fill(row,col)};
+    form.appendChild(btn);
+    // adding button for auto generate matrix
+    var btn = document.createElement("input");
+    btn.type = "button";
+    btn.name = "fill";
+    btn.value = "Example 3";
+    btn.id = "fill";
+    btn.onclick = function(){fill(row,col)};
+    form.appendChild(btn);
+    // adding button for auto generate matrix
+    var btn = document.createElement("input");
+    btn.type = "button";
+    btn.name = "fill";
+    btn.value = "Example 4";
+    btn.id = "fill";
+    btn.onclick = function(){fill(row,col)};
+    form.appendChild(btn);
+    var para = document.createElement("p");
+    form.appendChild(para);
+
 
     // adding button to calculate matrix
     var btn = document.createElement("input");
@@ -167,7 +193,7 @@ function calculate_matrix() {
     var para = document.createElement("p");
     para.id = "result_matrix";
     document.body.appendChild(para);
-    document.getElementById("result_matrix").innerHTML = "<hr> Result:";
+    document.getElementById("result_matrix").innerHTML = "<hr> Solution:";
 
     var r = parseInt(document.getElementById("size").elements[0].value);
     var c = parseInt(document.getElementById("size").elements[1].value);
@@ -357,7 +383,14 @@ function calculate_matrix() {
         text.className = "result";
         text.innerHTML = "<i>System is inconsistent - no solution exists</i>";
         div.appendChild(text);
-        //document.body.appendChild(text);
+
+        var btn = document.createElement("input");
+        btn.id = "show_solution";
+        btn.name = "show_solution";
+        btn.type = "button";
+        btn.value = "Why?";
+        btn.onclick = function(){steps(arrayOfMatrices)};
+        div.appendChild(btn);
     }
     else {
         if(!infinite) {
@@ -367,9 +400,7 @@ function calculate_matrix() {
                 text.readOnly = true;
                 text.name = "result";
                 text.className = "result";
-                text.size = "20";
                 text.value = result_matrix[i];
-                //document.body.appendChild(text);
                 div.appendChild(text);
 
                 para = document.createElement("p");
@@ -380,8 +411,8 @@ function calculate_matrix() {
             btn.id = "show_solution";
             btn.name = "show_solution";
             btn.type = "button";
-            btn.value = "Show solution";
-            btn.onclick = saythat;
+            btn.value = "Show solution steps";
+            btn.onclick = function(){steps(arrayOfMatrices)};
             div.appendChild(btn);
         }
         else {
@@ -391,9 +422,7 @@ function calculate_matrix() {
                 text.readOnly = true;
                 text.name = "result";
                 text.className = "result";
-                text.size = "20";
                 text.value = result_matrix[i].show();
-                //document.body.appendChild(text);
                 div.appendChild(text);
 
                 para = document.createElement("p");
@@ -409,8 +438,8 @@ function calculate_matrix() {
             btn.id = "show_solution";
             btn.name = "show_solution";
             btn.type = "button";
-            btn.value = "Show solution";
-            btn.onclick = saythat;
+            btn.value = "Show solution steps";
+            btn.onclick = function(){steps(arrayOfMatrices)};
             div.appendChild(btn);
         }
     }
@@ -418,11 +447,17 @@ function calculate_matrix() {
 }
 //=====================================================================================================================
 function saythat() {
-    alert("This is coming soon");
+    alert("coming soon");
 }
 
-function show(matrix){
+function steps(arrayOfMatrices){
+    //alert("coming soon");
+    var para = document.createElement("p");
+    para.id = "steps";
+    document.body.appendChild(para);
+    document.getElementById("steps").innerHTML = "<hr> Following steps to change matrix to Upper Triangular form:";
 
+    window.location = "equations.html#steps";
 }
 
 function display(matrix) {
@@ -434,19 +469,17 @@ function fill(row, col) {
     if(row == 3 && col == 4) {
         coeff = [[1, -2, 3, 7], [2, 1, 1, 4], [-3, 2, -2, -10]];
     }
-    //else if(row == 3 && col == 3) {
-    //    coeff = [[1, 1, 1, 3], [2, 2, 1, 4], [1, -1, 0, 1]];
-    //    sign = ["lessEqual", "lessEqual", "lessEqual"];
-    //}
-    //else if(row == 5 && col == 2) {
-    //    coeff = [[2, -4, 3], [-1, 1, 4], [1, 0, 5], [1, 0, 9], [1, 1, 3]];
-    //    sign = ["greatEqual", "lessEqual", "great", "great", "great"];
-    //}
+    else if(row == 3 && col == 3) {
+        coeff = [[1, 1, 1], [2, 1, 4], [-1, 0, 1]];
+    }
+    else if(row == 2 && col == 4) {
+        coeff = [[2, -4, 3, 4], [3, -1, 1, 4]];
+    }
 
     for (var i = 0; i < row; i++) {
         for (var j = 0; j < col; j++) {
             var entries = document.getElementsByName("entry");
-            entries.item(i * (row + 1) + j).value = coeff[i][j];
+            entries.item(i*(col) + j).value = coeff[i][j];
         }
     }
 }
