@@ -1,5 +1,5 @@
 /**
- * Created by Hasan on 04/11/2016.
+ * Created by Hasan on 07/03/2017.
  */
 //=====================================================================================================================
 /** @Expression class for storing the free variables and other ones depending on them
@@ -141,14 +141,41 @@ function generate_matrix() {
         form.appendChild(para);
     }
 
-    // adding button for auto generate matrix
-    var btn = document.createElement("input");
-    btn.type = "button";
-    btn.name = "fill";
-    btn.value = "Example";
-    btn.id = "fill";
-    btn.onclick = function(){fill(row,col)};
-    form.appendChild(btn);
+    //// adding button for auto generate matrix
+    //var btn = document.createElement("input");
+    //btn.type = "button";
+    //btn.name = "fill";
+    //btn.value = "Example 1";
+    //btn.id = "fill";
+    //btn.onclick = function(){fill(row,col)};
+    //form.appendChild(btn);
+    //// adding button for auto generate matrix
+    //var btn = document.createElement("input");
+    //btn.type = "button";
+    //btn.name = "fill";
+    //btn.value = "Example 2";
+    //btn.id = "fill";
+    //btn.onclick = function(){fill(row,col)};
+    //form.appendChild(btn);
+    //// adding button for auto generate matrix
+    //var btn = document.createElement("input");
+    //btn.type = "button";
+    //btn.name = "fill";
+    //btn.value = "Example 3";
+    //btn.id = "fill";
+    //btn.onclick = function(){fill(row,col)};
+    //form.appendChild(btn);
+    //// adding button for auto generate matrix
+    //var btn = document.createElement("input");
+    //btn.type = "button";
+    //btn.name = "fill";
+    //btn.value = "Example 4";
+    //btn.id = "fill";
+    //btn.onclick = function(){fill(row,col)};
+    //form.appendChild(btn);
+    //var para = document.createElement("p");
+    //form.appendChild(para);
+
 
     // adding button to calculate matrix
     var btn = document.createElement("input");
@@ -162,14 +189,14 @@ function generate_matrix() {
     window.location = "equations.html#pmatrix";
 }
 //=====================================================================================================================
-function calculate_matrix() {
+function calculate_matrix(r, c) {
     var para = document.createElement("p");
     para.id = "result_matrix";
     document.body.appendChild(para);
     document.getElementById("result_matrix").innerHTML = "<hr> Solution:";
 
-    var r = parseInt(document.getElementById("size").elements[0].value);
-    var c = parseInt(document.getElementById("size").elements[1].value);
+    //var r = parseInt(document.getElementById("size").elements[0].value);
+    //var c = parseInt(document.getElementById("size").elements[1].value);
     var i, j;
     var matrix = new Array(r);
     for(i = 0; i < r; i++)
@@ -185,10 +212,16 @@ function calculate_matrix() {
         }
     }
 
+    var div = document.createElement("div");
+    div.id = "steps_div";
+    div.style.display = "none";
+    document.body.appendChild(div);
+
+
     // now matrix is the real matrix that need some changes on it
     var k, ratio;
     var pivot_row = 0;
-
+    var counter = 0;
     // find maybe easier way of determining pivot element
     for (i = 0; i < c-1; i++) {
         // look for min non-0 in this column - pivot
@@ -240,8 +273,25 @@ function calculate_matrix() {
                 }
                 pivot_row++;
             }
+
+            // showing solution steps
+            var para = document.createElement("p");
+            para.id = "steps" + counter;
+            var temp = matrix + "";
+            if(document.getElementById("steps" + (counter-1)) == null){
+                para.innerHTML = matrix + "";
+                div.appendChild(para);
+            }
+            else{
+                if(document.getElementById("steps" + (counter-1)).innerText !== temp) {
+                    para.innerHTML = matrix + "";
+                    div.appendChild(para);
+                }
+            }
+            counter++;
         }
     }
+
     // checking rank to see consistency
     // try to do this by much more efficient way, maybe starting from end might be great
     var rank_augmented = r;
@@ -350,6 +400,11 @@ function calculate_matrix() {
     div.id = "div-result";
     document.body.appendChild(div);
 
+    var div_result = document.getElementById("div-result");
+    if(div_result.hasChildNodes()) {
+        document.body.replaceChild(div, div_result);
+    }
+
     if(!solution) {
         var text = document.createElement("p");
         text.name = "result";
@@ -362,7 +417,8 @@ function calculate_matrix() {
         btn.name = "show_solution";
         btn.type = "button";
         btn.value = "Why?";
-        btn.onclick = function(){steps(arrayOfMatrices)};
+        //document.body.appendChild(div);
+        btn.onclick = function(){steps(r, c)};
         div.appendChild(btn);
     }
     else {
@@ -385,7 +441,8 @@ function calculate_matrix() {
             btn.name = "show_solution";
             btn.type = "button";
             btn.value = "Show solution steps";
-            btn.onclick = function(){steps(arrayOfMatrices)};
+            //document.body.appendChild(div);
+            btn.onclick = function(){steps(r, c)};
             div.appendChild(btn);
         }
         else {
@@ -412,30 +469,52 @@ function calculate_matrix() {
             btn.name = "show_solution";
             btn.type = "button";
             btn.value = "Show solution steps";
-            btn.onclick = function(){steps(arrayOfMatrices)};
+            //document.body.appendChild(div);
+            btn.onclick = function(){steps(r, c)};
             div.appendChild(btn);
         }
     }
-    window.location = "equations.html#div-result";
+    window.location = "demo_equations.html#div-result";
 }
 //=====================================================================================================================
-function saythat() {
-    alert("coming soon");
+function steps(r, c){
+    var div = document.getElementById("steps_div");
+
+    var newDiv = document.createElement("div");
+    newDiv.id = "new_steps_div";
+    newDiv.style.display = "block";
+    newDiv.style.textAlign = "center";
+    newDiv.innerHTML = div.innerHTML;
+    document.body.appendChild(newDiv);
+
+    var children = newDiv.childNodes;
+
+    for(var k = 0; k < children.length; k++) {
+        var str = children[k].innerHTML;
+        var entries = str.split(',');
+        var para = document.createElement("p");
+
+        for(var i = 0; i < r; i++) {
+            for(var j = 0; j < c; j++) {
+                var el = document.createElement("input");
+                el.name = "entry";
+                el.type = "text";
+                el.readOnly = true;
+                el.className = "entries";
+                el.setAttribute("value", entries[i*c + j]+"");
+                para.appendChild(el);
+            }
+            // new line after each row
+            var br = document.createElement("br");
+            para.appendChild(br);
+        }
+
+        children[k].innerHTML = para.innerHTML;
+    }
+
+    window.location = "demo_equations.html#new_steps_div";
 }
 
-function steps(arrayOfMatrices){
-    //alert("coming soon");
-    var para = document.createElement("p");
-    para.id = "steps";
-    document.body.appendChild(para);
-    document.getElementById("steps").innerHTML = "<hr> Following steps to change matrix to Upper Triangular form:";
-
-    window.location = "equations.html#steps";
-}
-
-function display(matrix) {
-    console.log(matrix);
-}
 //=====================================================================================================================
 function fill(row, col) {
     var coeff;
@@ -449,11 +528,58 @@ function fill(row, col) {
         coeff = [[2, -4, 3, 4], [3, -1, 1, 4]];
     }
 
+    // instructions for matrix
+    var p = document.createElement("p");
+    p.id = "pmatrix";
+    document.body.appendChild(p);
+    document.getElementById("pmatrix").innerHTML = "<hr> Example matrix entries:";
+
+    // creating form for matrix
+    var div = document.createElement("div");
+    div.id = "div-matrix";
+    document.body.appendChild(div);
+
+    // removing already loaded ones
+    var node = document.getElementById("div-matrix");
+    var result_matrix = document.getElementById("result_matrix");
+    var div_result = document.getElementById("div-result");
+
+    if(node.hasChildNodes()) {
+        document.body.replaceChild(div, node);
+        if(result_matrix != null) document.body.removeChild(result_matrix);
+        if(div_result != null) document.body.removeChild(div_result);
+    }
+
+    // creating form for matrix
+    var form = document.createElement("form");
+    form.id = "matrix";
+    div.appendChild(form);
+
     for (var i = 0; i < row; i++) {
         for (var j = 0; j < col; j++) {
-            var entries = document.getElementsByName("entry");
-            entries.item(i*(col) + j).value = coeff[i][j];
-        }
-    }
-}
+            var element = document.createElement("input");
+            element.name = "entry";
+            element.type = "text";
+            element.className = "entries";
+            element.value = coeff[i][j];
+            form.appendChild(element);
 
+            //var entries = document.getElementsByName("entry");
+            //entries.item(i*(col) + j).value = coeff[i][j];
+        }
+        // new line after each row
+        var para = document.createElement("p");
+        form.appendChild(para);
+    }
+
+    // adding button to calculate matrix
+    var btn = document.createElement("input");
+    btn.type = "button";
+    btn.name = "calculate";
+    btn.value = "Solve";
+    btn.id = "calculate";
+    btn.onclick = function(){calculate_matrix(row, col)};
+    form.appendChild(btn);
+
+    window.location = "demo_equations.html#pmatrix";
+}

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Equations</title>
+
+    <link href="https://fonts.googleapis.com/css?family=Baloo" rel="stylesheet">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="../general.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Baloo" rel="stylesheet">
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+    <style>
+        #spech1{font-size:50px;color:#7f8c8d}
+        h1{font-family: 'Baloo', cursive;font-size:35px;color:white}
+    </style>
+
+</head>
+<body>
+
+<div class="row">
+    <a href="demo_equations.html" class="nostyle"><div class="col-md-6" id="eq2">
+        <h1>Equations</h1>
+    </div>
+    </a>
+    <a href="demo_inequalities.html" class="nostyle"><div class="col-md-6" id="ineq2">
+        <h1>Inequalities</h1>
+    </div></a>
+
+</div>
+
+<h1 align="center" id="spech1">Gaussian Elimination Tool</h1>
+
+<hr />
+
+<div class="row">
+    <div class="col-md-3"></div>
+    <div class="col-md-6" id="cencol">
+        <!--<div>-->
+            <!--<p style="font-family: 'Baloo', cursive;font-size:30px;color:#34495e">Enter the size of matrix:</p>-->
+            <!--<form id="size">-->
+                <!--<input type="text" name="row" style="text-align: center; font-family: 'Baloo', cursive; font-size:30px;width:150px;height:50px;padding:15px;border-color:#7f8c8d;border-radius:5px;" placeholder="row">-->
+                <!--<span style="font-family: 'Baloo', cursive;font-size:30px;color:gray;">x</span>-->
+                <!--<input type="text" name="column" style="text-align: center; font-family: 'Baloo', cursive; font-size:30px;width:150px;height:50px;padding:15px;border-color:#7f8c8d;border-radius:5px;" placeholder="column">-->
+                <!--<br /><br />-->
+                <!--<button type="button" style="background-color:#3498db;color:white;font-family: 'Baloo', cursive;font-size:20px;width:330px;" value="Generate matrix" onclick="generate_matrix()" class="btn">Generate Empty Matrix</button>-->
+
+            <!--</form>-->
+        <!--</div>-->
+
+        <div>
+            <button onclick="fill(3, 4)" class="btn" style="background-color:#3498db;color:white;font-family: 'Baloo', cursive;width:150px;height:50px;padding:10px;font-size:20px;border-color:#7f8c8d;border-radius:5px;">Example 1</button>
+            <button onclick="fill(2, 4)" class="btn" style="background-color:#3498db;color:white;font-family: 'Baloo', cursive;width:150px;height:50px;padding:10px;font-size:20px;border-color:#7f8c8d;border-radius:5px;">Example 2</button>
+            <button onclick="fill(3, 3)" class="btn" style="background-color:#3498db;color:white;font-family: 'Baloo', cursive;width:150px;height:50px;padding:10px;font-size:20px;border-color:#7f8c8d;border-radius:5px;">Example 3</button>
+            <!--<button onclick="fill()" class="btn" style="background-color:#3498db;color:white;font-family: 'Baloo', cursive;width:150px;height:50px;padding:10px;font-size:20px;border-color:#7f8c8d;border-radius:5px;">Example 4</button>-->
+        </div>
+
+        <h3 style="font-family: 'Baloo', cursive;font-size:30px;color:gray;">OR</h3>
+
+        <div>
+            <p style="font-family: 'Baloo', cursive;font-size:24px;color:#34495e">Input your file containing matrix data:</p>
+            <form action="../calculate.php" method="post">
+
+                <div class="form-group">
+                    <input type="file" required = "required" name="data" id="data" style="margin-left: 225px; ">
+                </div>
+
+                <input type="submit" style="background-color:#3498db;color:white;font-family: 'Baloo', cursive;width:150px;height:50px;padding:10px;font-size:20px;border-color:#7f8c8d;border-radius:5px;" name="calculate" value="Solve" class="btn">
+            </form>
+        </div>
+    </div>
+    <div class="col-md-3"></div>
+</div>
+
+
+
+</body>
+<script type="text/javascript" src="demo_equations.js" ></script>
+</html>
