@@ -85,6 +85,7 @@
         var newCoeff = this.coeff.slice();
         for (var i = 0; i < this.variable.length; i++) {
             newCoeff[i] *= n;
+            newCoeff[i] = Math.round(newCoeff[i]*1e10)/1e10;
         }
 
         return new Expression(newCoeff, newVar);
@@ -96,97 +97,11 @@
         var newCoeff = this.coeff.slice();
         for (var i = 0; i < this.variable.length; i++) {
             newCoeff[i] /= n;
+            newCoeff[i] = Math.round(newCoeff[i]*1e10)/1e10;
         }
 
         return new Expression(newCoeff, newVar);
     }
-}
-//=====================================================================================================================
-function generate_matrix() {
-    // getting the row and column numbers
-    var row = parseInt(document.getElementById("size").elements[0].value);
-    var col = parseInt(document.getElementById("size").elements[1].value);
-
-    // instructions for matrix
-    var p = document.createElement("p");
-    p.id = "pmatrix";
-    document.body.appendChild(p);
-    document.getElementById("pmatrix").innerHTML = "<hr> Enter matrix entries:";
-
-    // creating form for matrix
-    var div = document.createElement("div");
-    div.id = "div-matrix";
-    document.body.appendChild(div);
-
-    // creating form for matrix
-    var form = document.createElement("form");
-    form.id = "matrix";
-    div.appendChild(form);
-
-    // creating free matrix entries
-    var i, j;
-    for (i=0; i<row; i++)
-    {
-        for (j=0; j<col; j++)
-        {
-            var element = document.createElement("input");
-            element.name = "entry";
-            element.type = "text";
-            element.className = "entries";
-            form.appendChild(element);
-        }
-
-        // new line after each row
-        var para = document.createElement("p");
-        form.appendChild(para);
-    }
-
-    //// adding button for auto generate matrix
-    //var btn = document.createElement("input");
-    //btn.type = "button";
-    //btn.name = "fill";
-    //btn.value = "Example 1";
-    //btn.id = "fill";
-    //btn.onclick = function(){fill(row,col)};
-    //form.appendChild(btn);
-    //// adding button for auto generate matrix
-    //var btn = document.createElement("input");
-    //btn.type = "button";
-    //btn.name = "fill";
-    //btn.value = "Example 2";
-    //btn.id = "fill";
-    //btn.onclick = function(){fill(row,col)};
-    //form.appendChild(btn);
-    //// adding button for auto generate matrix
-    //var btn = document.createElement("input");
-    //btn.type = "button";
-    //btn.name = "fill";
-    //btn.value = "Example 3";
-    //btn.id = "fill";
-    //btn.onclick = function(){fill(row,col)};
-    //form.appendChild(btn);
-    //// adding button for auto generate matrix
-    //var btn = document.createElement("input");
-    //btn.type = "button";
-    //btn.name = "fill";
-    //btn.value = "Example 4";
-    //btn.id = "fill";
-    //btn.onclick = function(){fill(row,col)};
-    //form.appendChild(btn);
-    //var para = document.createElement("p");
-    //form.appendChild(para);
-
-
-    // adding button to calculate matrix
-    var btn = document.createElement("input");
-    btn.type = "button";
-    btn.name = "calculate";
-    btn.value = "Calculate";
-    btn.id = "calculate";
-    btn.onclick = calculate_matrix;
-    form.appendChild(btn);
-
-    window.location = "equations.html#pmatrix";
 }
 //=====================================================================================================================
 function calculate_matrix(r, c) {
@@ -267,9 +182,13 @@ function calculate_matrix(r, c) {
             }
             else {
                 for (k = pivot_row+1; k < r; k++) {
-                    ratio = matrix[k][i] / matrix[pivot_row][i];
-                    for (j = i; j < c; j++)
-                        matrix[k][j] -= ratio*matrix[pivot_row][j]; // can be done a bit better by making 1st el 0 directly
+                    //ratio = matrix[k][i] / matrix[pivot_row][i]; // given in algorithm
+                    var start_of_row = matrix[k][i]; // my heuristics
+                    for (j = i; j < c; j++) {
+                        //matrix[k][j] -= ratio*matrix[pivot_row][j]; // can be done a bit better by making 1st el 0 directly // given in algorithm
+                        matrix[k][j] = matrix[k][j]*matrix[pivot_row][i] - start_of_row*matrix[pivot_row][j]; // my heuristics
+                        matrix[k][j] = Math.round(matrix[k][j]*1e10)/1e10; // and rounding
+                    }
                 }
                 pivot_row++;
             }
@@ -329,12 +248,14 @@ function calculate_matrix(r, c) {
             // Back Substitution
             var result_matrix = new Array(c - 1);
             result_matrix[c - 2] = matrix[c - 2][c - 1] / matrix[c - 2][c - 2];
+            result_matrix[c-2] = Math.round(result_matrix[c-2]*1e10)/1e10;
             for (i = c - 3; i >= 0; i--) {
                 var sum = 0;
                 for (j = i + 1; j < c - 1; j++) {
                     sum += matrix[i][j] * result_matrix[j];
                 }
                 result_matrix[i] = (matrix[i][c - 1] - sum) / matrix[i][i];
+                result_matrix[i] = Math.round(result_matrix[i]*1e10)/1e10;
             }
         }
         else {
@@ -479,7 +400,6 @@ function calculate_matrix(r, c) {
 //=====================================================================================================================
 function steps(r, c){
     var div = document.getElementById("steps_div");
-
     var newDiv = document.createElement("div");
     newDiv.id = "new_steps_div";
     newDiv.style.display = "block";
@@ -500,7 +420,7 @@ function steps(r, c){
                 el.name = "entry";
                 el.type = "text";
                 el.readOnly = true;
-                el.className = "entries";
+                el.className = "steps_entries";
                 el.setAttribute("value", entries[i*c + j]+"");
                 para.appendChild(el);
             }
@@ -511,21 +431,23 @@ function steps(r, c){
 
         children[k].innerHTML = para.innerHTML;
     }
+    document.body.removeChild(div);
 
     window.location = "demo_equations.html#new_steps_div";
 }
 
 //=====================================================================================================================
+// examples containing all 3 cases
 function fill(row, col) {
     var coeff;
-    if(row == 3 && col == 4) {
-        coeff = [[1, -2, 3, 7], [2, 1, 1, 4], [-3, 2, -2, -10]];
+    if(row == 5 && col == 4) { // inconsistent case
+        coeff = [[-55.79, 39.21, 50.4, -93.48], [83.03, -43.3, -16.26, 79.96], [30.91, -94.81, 27.93, 92.09], [-46.86, 39.29, 51.76, -70.64], [-37.52, -8.22, 36.49, 54.54]];
     }
-    else if(row == 3 && col == 3) {
-        coeff = [[1, 1, 1], [2, 1, 4], [-1, 0, 1]];
+    else if(row == 3 && col == 5) { // infinite solution example
+        coeff = [[2, -2, -5.2, 0.5, 3.98], [1, 1, 2.6, -3.1, -7.24], [10, 0, 0, 10, 95]];
     }
-    else if(row == 2 && col == 4) {
-        coeff = [[2, -4, 3, 4], [3, -1, 1, 4]];
+    else if(row == 5 && col == 6) { // unique solution example
+        coeff = [[4, 3.2, 6.5, 7, -3, 56.97], [2.3, -6, 10, 15, 3.9, 278.994], [-1, 1.3, 3.75, 6, 8.3, 207.945], [7, 2, 4, 9.03, 6, 223.3], [-5, 2.4, 3, 7, -5, -33.2]];
     }
 
     // instructions for matrix
@@ -543,11 +465,15 @@ function fill(row, col) {
     var node = document.getElementById("div-matrix");
     var result_matrix = document.getElementById("result_matrix");
     var div_result = document.getElementById("div-result");
+    var steps_backup = document.getElementById("steps_div");
+    var steps = document.getElementById("new_steps_div");
 
     if(node.hasChildNodes()) {
         document.body.replaceChild(div, node);
         if(result_matrix != null) document.body.removeChild(result_matrix);
         if(div_result != null) document.body.removeChild(div_result);
+        if(steps != null) document.body.removeChild(steps);
+        if(steps_backup != null) document.body.removeChild(steps_backup);
     }
 
     // creating form for matrix
@@ -568,8 +494,8 @@ function fill(row, col) {
             //entries.item(i*(col) + j).value = coeff[i][j];
         }
         // new line after each row
-        var para = document.createElement("p");
-        form.appendChild(para);
+        var br = document.createElement("br");
+        form.appendChild(br);
     }
 
     // adding button to calculate matrix

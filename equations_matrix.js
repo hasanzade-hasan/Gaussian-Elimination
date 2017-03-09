@@ -85,6 +85,7 @@
         var newCoeff = this.coeff.slice();
         for (var i = 0; i < this.variable.length; i++) {
             newCoeff[i] *= n;
+            newCoeff[i] = Math.round(newCoeff[i]*1e10)/1e10;
         }
 
         return new Expression(newCoeff, newVar);
@@ -96,6 +97,7 @@
         var newCoeff = this.coeff.slice();
         for (var i = 0; i < this.variable.length; i++) {
             newCoeff[i] /= n;
+            newCoeff[i] = Math.round(newCoeff[i]*1e10)/1e10;
         }
 
         return new Expression(newCoeff, newVar);
@@ -234,9 +236,13 @@ function calculate_matrix() {
             }
             else {
                 for (k = pivot_row+1; k < r; k++) {
-                    ratio = matrix[k][i] / matrix[pivot_row][i];
-                    for (j = i; j < c; j++)
-                        matrix[k][j] -= ratio*matrix[pivot_row][j]; // can be done a bit better by making 1st el 0 directly
+                    //ratio = matrix[k][i] / matrix[pivot_row][i]; // given in algorithm
+                    var start_of_row = matrix[k][i];
+                    for (j = i; j < c; j++){
+                        //matrix[k][j] -= ratio*matrix[pivot_row][j]; // can be done a bit better by making 1st el 0 directly // given in algorithm
+                        matrix[k][j] = matrix[k][j]*matrix[pivot_row][i] - start_of_row*matrix[pivot_row][j];
+                        matrix[k][j] = Math.round(matrix[k][j]*1e10)/1e10;
+                    }
                 }
                 pivot_row++;
             }
@@ -279,12 +285,14 @@ function calculate_matrix() {
             // Back Substitution
             var result_matrix = new Array(c - 1);
             result_matrix[c - 2] = matrix[c - 2][c - 1] / matrix[c - 2][c - 2];
+            result_matrix[c-2] = Math.round(result_matrix[c-2]*1e10)/1e10;
             for (i = c - 3; i >= 0; i--) {
                 var sum = 0;
                 for (j = i + 1; j < c - 1; j++) {
                     sum += matrix[i][j] * result_matrix[j];
                 }
                 result_matrix[i] = (matrix[i][c - 1] - sum) / matrix[i][i];
+                result_matrix[i] = Math.round(result_matrix[i]*1e10)/1e10;
             }
         }
         else {

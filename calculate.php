@@ -76,9 +76,11 @@
             }
             else {
                 for ($k = $pivot_row+1; $k < $row; $k++) {
-                    $ratio = $matrix[$k][$i] / $matrix[$pivot_row][$i];
+                    $ratio = $matrix[$k][$i] / $matrix[$pivot_row][$i]; //given in algorithm
+//                    $start_of_row = $matrix[$k][$i]; // my heuristics
                     for ($j = $i; $j < $col; $j++)
-                        $matrix[$k][$j] -= $ratio*$matrix[$pivot_row][$j]; // can be done a bit better by making 1st el 0 directly
+                        $matrix[$k][$j] -= $ratio * $matrix[$pivot_row][$j]; // given in algorithm // can be done a bit better by making 1st el 0 directly
+//                        $matrix[$k][$j] = $matrix[$k][$j]*$matrix[$pivot_row][$i] - $start_of_row*$matrix[$pivot_row][$j]; // my heuristics
                 }
                 $pivot_row++;
             }
@@ -123,12 +125,14 @@
             // Back Substitution
             $result_matrix = array(); // size is $col-1
             $result_matrix[$col - 2] = $matrix[$col - 2][$col - 1] / $matrix[$col - 2][$col - 2];
+            $result_matrix[$col-2] = round($result_matrix[$col-2]*1e10)/1e10;
             for ($i = $col - 3; $i >= 0; $i--) {
                 $sum = 0;
                 for ($j = $i + 1; $j < $col - 1; $j++) {
                     $sum += $matrix[$i][$j] * $result_matrix[$j];
                 }
                 $result_matrix[$i] = ($matrix[$i][$col - 1] - $sum) / $matrix[$i][$i];
+                $result_matrix[$i] = round($result_matrix[$i]*1e10)/1e10;
             }
         }
         else {
@@ -138,6 +142,8 @@
     }
 
     // printing result
+    $myfile = fopen("output.txt", "w");
+
     if(!$solution)
         echo "<i>System is inconsistent - no solution exists</i>";
     else {
@@ -147,17 +153,12 @@
             echo "Result: <br>";
             for($i = 0; $i < $col-1; $i++) {
                 echo ($i+1) . ". <input type='text' readonly value='$result_matrix[$i]'/> <br>";
+                fwrite($myfile, $result_matrix[$i]."\n");
             }
-            echo "<input type='button' value='Show solution' onclick='saythat()' />";
         }
     }
+    fclose($myfile);
 
-// print matrix
-//    for ($i = 0; $i < $row; $i++) {
-//        for ($j = 0; $j < $col; $j++) {
-//            echo "<input type='text' readonly value='" . $matrix[$i][$j] . "' />";
-//        }
-//        echo "<br>";
-//    }
+    echo "<br><a href = \"output.txt\" target=\"_blank\">Download output</a>";
 ?>
 
