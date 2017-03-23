@@ -4,31 +4,34 @@
     <meta charset="UTF-8">
     <title>Inequalities</title>
     <link rel="stylesheet" type="text/css" href="../general.css"/>
-    <script type="text/javascript" src="../inequalities_matrix.js" ></script>
+    <script type="text/javascript" src="demo_inequalities.js" ></script>
 </head>
 <body>
-<h1 align="center">Gaussian Elimination Tool</h1>
+<h1 align="center">Fourier-Motzkin Elimination Tool</h1>
 <hr>
 
 <div>
     <ul>
-        <li><a href="../equations.html">Equations</a></li>
-        <li><a href="../inequalities.html">Inequalities</a></li>
+        <li><a href="demo_equations.html">Equations</a></li>
+        <li><a href="demo_inequalities.html">Inequalities</a></li>
     </ul>
 </div>
 
 <hr/>
 
 <div>
-    <form id="size">
-        <p>Enter the number of variables:
-            <input type="text" name="no_var" size="5">
-        </p>
-        <p>Enter the number of constraints (inequalities):
-            <input type="text" name="no_ineq" size="5">
-        </p>
-        <input type="button" value="Create empty system" name="system" onclick="generate_matrix()">
-    </form>
+    <!--<form id="size">-->
+        <!--<p>Enter the number of variables:-->
+            <!--<input type="text" name="no_var" size="5">-->
+        <!--</p>-->
+        <!--<p>Enter the number of constraints (inequalities):-->
+            <!--<input type="text" name="no_ineq" size="5">-->
+        <!--</p>-->
+        <!--<input type="button" value="Create empty system" name="system" onclick="generate_matrix()">-->
+    <!--</form>-->
+    <input type="button" value="Example 1" onclick="fill(3, 1)">
+    <input type="button" value="Example 2" onclick="fill(4, 2)">
+    <input type="button" value="Example 3" onclick="fill(4, 3)">
 </div>
 
 </body>

@@ -156,7 +156,7 @@ function generate_matrix() {
     var btn = document.createElement("input");
     btn.type = "button";
     btn.name = "calculate";
-    btn.value = "Calculate";
+    btn.value = "Solve";
     btn.id = "calculate";
     btn.onclick = calculate_matrix;
     form.appendChild(btn);
