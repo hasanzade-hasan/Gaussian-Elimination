@@ -16,28 +16,27 @@
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
-
     <style>
         #spech1{font-size:50px;color:#7f8c8d}
         h1{font-family: 'Baloo', cursive;font-size:35px;color:white}
     </style>
-
 </head>
-<body>
-<div style="text-align: center;"><a href="Demo/demo_equations.html">Demo version</a> </div>
-<div class="row">
-    <a href="equations.html" class="nostyle"><div class="col-md-6" id="eq2">
-        <h1>Equations</h1>
-    </div>
-    </a>
-    <a href="inequalities.html" class="nostyle"><div class="col-md-6" id="ineq2">
-        <h1>Inequalities</h1>
-    </div></a>
 
+<body>
+<div class="row">
+    <a href="equations.html" class="nostyle">
+        <div class="col-md-6" id="eq2">
+            <h1>Equations</h1>
+        </div>
+    </a>
+    <a href="inequalities.html" class="nostyle">
+        <div class="col-md-6" id="ineq2">
+            <h1>Inequalities</h1>
+        </div>
+    </a>
 </div>
 
 <h1 align="center" id="spech1">Gaussian Elimination Tool</h1>
-
 <hr />
 
 <div class="row">
@@ -51,27 +50,20 @@
                 <input type="text" name="column" style="text-align: center; font-family: 'Baloo', cursive; font-size:30px;width:150px;height:50px;padding:15px;border-color:#7f8c8d;border-radius:5px;" placeholder="column">
                 <br /><br />
                 <button type="button" style="background-color:#3498db;color:white;font-family: 'Baloo', cursive;font-size:20px;width:330px;" value="Generate matrix" onclick="generate_matrix()" class="btn">Generate Empty Matrix</button>
-
             </form>
         </div>
         <h3 style="font-family: 'Baloo', cursive;font-size:30px;color:gray;">OR</h3>
-
         <div>
             <p style="font-family: 'Baloo', cursive;font-size:18px;color:#34495e">Input your file containing matrix data:</p>
             <form action="calculate.php" method="post">
-
                 <div class="form-group">
-                    <input type="file" name="data" id="data" style="margin-left: 225px; ">
+                    <input type="file" required = "required" name="data" id="data" style="margin-left: 225px; ">
                 </div>
-
                 <input type="submit" style="background-color:#3498db;color:white;font-family: 'Baloo', cursive;width:150px;height:50px;padding:10px;font-size:20px;border-color:#7f8c8d;border-radius:5px;" name="calculate" value="Solve" class="btn">
             </form>
         </div>
     </div>
     <div class="col-md-3"></div>
 </div>
-
-
-
 </body>
 </html>

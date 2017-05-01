@@ -120,6 +120,21 @@ function generate_matrix() {
     div.id = "div-matrix";
     document.body.appendChild(div);
 
+    // removing already loaded ones
+    var node = document.getElementById("div-matrix");
+    var result_matrix = document.getElementById("result_matrix");
+    var div_result = document.getElementById("div-result");
+    var steps_backup = document.getElementById("steps_div");
+    var steps = document.getElementById("new_steps_div");
+
+    if(node.hasChildNodes()) {
+        document.body.replaceChild(div, node);
+        if(result_matrix != null) document.body.removeChild(result_matrix);
+        if(div_result != null) document.body.removeChild(div_result);
+        if(steps != null) document.body.removeChild(steps);
+        if(steps_backup != null) document.body.removeChild(steps_backup);
+    }
+
     // creating form for matrix
     var form = document.createElement("form");
     form.id = "matrix";
@@ -179,49 +194,71 @@ function calculate_matrix() {
 
     // getting matrix entries
     var entries = document.getElementsByName("entry");
-    var counter = 0;
+    var next = 0;
     for(i = 0; i < r; i++) {
         for (j = 0; j < c; j++) {
-            matrix[i][j] = parseFloat(entries.item(counter).value);
-            counter++;
+            matrix[i][j] = parseFloat(entries.item(next).value);
+            next++;
         }
     }
+
+    var div = document.createElement("div");
+    div.id = "steps_div";
+    div.style.display = "none";
+    document.body.appendChild(div);
 
     // now matrix is the real matrix that need some changes on it
     var k, ratio;
     var pivot_row = 0;
-
+    var counter = 0;
     // find maybe easier way of determining pivot element
     for (i = 0; i < c-1; i++) {
-        // look for min non-0 in this column - pivot
-        if(pivot_row < r) { // r or r-1 ???
+        // look for non-0 in this column - pivot
+        if(pivot_row < r) { // r - number of rows
             var pivot_el = Math.abs(matrix[pivot_row][i]);
             var min_row = pivot_row;
 
             // if 1st element is 0
-            if(pivot_el == 0) {
-                for (k = pivot_row+1; k < r; k++) {
-                    if(matrix[k][i] != 0) {
+            if (pivot_el == 0) {
+                for (k = pivot_row + 1; k < r; k++) {
+                    if (matrix[k][i] != 0) {
                         pivot_el = matrix[k][i];
                         min_row = k;
                         break;
                     }
                 }
             }
-            // now it is non-0 (if there was other non-0 element in column)
-            for (k = pivot_row+1; k < r; k++) {
-                if (Math.abs(matrix[k][i]) < pivot_el && matrix[k][i] != 0) {
-                    pivot_el = Math.abs(matrix[k][i]);
-                    min_row = k;
-                }
-            }
 
             // swap pivot row with current row, consider equality case
-            if(pivot_row != min_row) {
+            if (pivot_row != min_row) {
                 var tmp = matrix[min_row];
                 matrix[min_row] = matrix[pivot_row];
                 matrix[pivot_row] = tmp;
             }
+
+            // Upper Triangularisation
+            if (matrix[pivot_row][i] != 0) {
+                for (k = pivot_row + 1; k < r; k++) {
+                    var start_of_row = matrix[k][i]; // my heuristics
+                    for (j = i; j < c; j++) {
+                        matrix[k][j] = matrix[k][j] * matrix[pivot_row][i] - start_of_row * matrix[pivot_row][j]; // my heuristics
+                        matrix[k][j] = Math.round(matrix[k][j] * 1e10) / 1e10; // rounding
+                    }
+                }
+                pivot_row++;
+            }
+
+            //// now it is non-0 (if there was other non-0 element in column)
+            //for (k = pivot_row + 1; k < r; k++) {
+            //    if (Math.abs(matrix[k][i]) < pivot_el && matrix[k][i] != 0) {
+            //        pivot_el = Math.abs(matrix[k][i]);
+            //        min_row = k;
+            //    }
+            //}
+
+            //ratio = matrix[k][i] / matrix[pivot_row][i];
+            //matrix[k][j] -= ratio * matrix[pivot_row][j]; // can be done a bit better by making 1st el 0 directly
+
             // can be done much better by ignoring 0's like this, check & do later
             // for (k = i; k < c; k++) {
             //     var temp = matrix[max_row][k];
@@ -229,44 +266,42 @@ function calculate_matrix() {
             //     matrix[i][k] = temp;
             // }
 
-
-            // Upper Triangularisation
-            if(matrix[pivot_row][i] == 0) {
-                continue;
+            // showing solution steps
+            var para = document.createElement("p");
+            para.id = "steps" + counter;
+            var temp = matrix + "";
+            if(document.getElementById("steps" + (counter-1)) == null){
+                para.innerHTML = matrix + "";
+                div.appendChild(para);
             }
-            else {
-                for (k = pivot_row+1; k < r; k++) {
-                    //ratio = matrix[k][i] / matrix[pivot_row][i]; // given in algorithm
-                    var start_of_row = matrix[k][i];
-                    for (j = i; j < c; j++){
-                        //matrix[k][j] -= ratio*matrix[pivot_row][j]; // can be done a bit better by making 1st el 0 directly // given in algorithm
-                        matrix[k][j] = matrix[k][j]*matrix[pivot_row][i] - start_of_row*matrix[pivot_row][j];
-                        matrix[k][j] = Math.round(matrix[k][j]*1e10)/1e10;
-                    }
+            else{
+                if(document.getElementById("steps" + (counter-1)).innerText !== temp) {
+                    para.innerHTML = matrix + "";
+                    div.appendChild(para);
                 }
-                pivot_row++;
             }
+            counter++;
         }
     }
     // checking rank to see consistency
-    // try to do this by much more efficient way, maybe starting from end might be great
-    var rank_augmented = r;
-    for (i = 0; i < r; i++) {
-        var found = false;
-        for (j = 0; j < c; j++) {
-            if (matrix[i][j] != 0) {
-                found = true;
-                break;
+    // r - number of rows, c - number of columns
+    var rank_augmented = r;          // at the start assume rank is same as r
+    for (i = 0; i < r; i++) {        // for each row
+        var found = false;           // assume not seen a non-zero value so far
+        for (j = c-1; j >= 0; j--) { // for each entry of matrix starting from end
+            if (matrix[i][j] != 0) { // if non-zero value found
+                found = true;        // we are done
+                break;               // so, quit looking for the others
             }
         }
-        if (!found)
-            rank_augmented--;
+        if (!found)                  // if there is not any non-zero value
+            rank_augmented--;        // means all 0's, so 0 row found, decrement r
     }
 
     var rank_coeff = r;
     for (i = 0; i < r; i++) {
-        var found = false;
-        for (j = 0; j < c-1; j++) {
+        found = false;
+        for (j = c-2; j >= 0; j--) {
             if (matrix[i][j] != 0) {
                 found = true;
                 break;
@@ -285,6 +320,7 @@ function calculate_matrix() {
             // Back Substitution
             var result_matrix = new Array(c - 1);
             result_matrix[c - 2] = matrix[c - 2][c - 1] / matrix[c - 2][c - 2];
+            // rounding required
             result_matrix[c-2] = Math.round(result_matrix[c-2]*1e10)/1e10;
             for (i = c - 3; i >= 0; i--) {
                 var sum = 0;
@@ -292,6 +328,7 @@ function calculate_matrix() {
                     sum += matrix[i][j] * result_matrix[j];
                 }
                 result_matrix[i] = (matrix[i][c - 1] - sum) / matrix[i][i];
+                // rounding required
                 result_matrix[i] = Math.round(result_matrix[i]*1e10)/1e10;
             }
         }
@@ -301,7 +338,7 @@ function calculate_matrix() {
             //var no_free_var = c-1 - rank_augmented; // number of free(independent) variables
 
             // Back Substitution
-            var result_matrix = new Array(c - 1);
+            result_matrix = new Array(c - 1);
             //result_matrix[c - 2] = matrix[c - 2][c - 1] / matrix[c - 2][c - 2];
 
             var row = rank_augmented-1;
@@ -358,6 +395,11 @@ function calculate_matrix() {
     div.id = "div-result";
     document.body.appendChild(div);
 
+    var div_result = document.getElementById("div-result");
+    if(div_result.hasChildNodes()) {
+        document.body.replaceChild(div, div_result);
+    }
+
     if(!solution) {
         var text = document.createElement("p");
         text.name = "result";
@@ -370,7 +412,7 @@ function calculate_matrix() {
         btn.name = "show_solution";
         btn.type = "button";
         btn.value = "Why?";
-        btn.onclick = function(){steps(arrayOfMatrices)};
+        btn.onclick = function(){steps(r, c)};
         div.appendChild(btn);
     }
     else {
@@ -393,7 +435,7 @@ function calculate_matrix() {
             btn.name = "show_solution";
             btn.type = "button";
             btn.value = "Show solution steps";
-            btn.onclick = function(){steps(arrayOfMatrices)};
+            btn.onclick = function(){steps(r, c)};
             div.appendChild(btn);
         }
         else {
@@ -420,48 +462,57 @@ function calculate_matrix() {
             btn.name = "show_solution";
             btn.type = "button";
             btn.value = "Show solution steps";
-            btn.onclick = function(){steps(arrayOfMatrices)};
+            btn.onclick = function(){steps(r, c)};
             div.appendChild(btn);
         }
     }
     window.location = "equations.html#div-result";
 }
 //=====================================================================================================================
-function saythat() {
-    alert("coming soon");
-}
+function steps(r, c){
 
-function steps(arrayOfMatrices){
-    //alert("coming soon");
-    var para = document.createElement("p");
-    para.id = "steps";
-    document.body.appendChild(para);
-    document.getElementById("steps").innerHTML = "<hr> Following steps to change matrix to Upper Triangular form:";
+    // that'd be great if can implement here also removing already loaded ones
 
-    window.location = "equations.html#steps";
-}
+    var div = document.getElementById("steps_div");
+    var newDiv = document.createElement("div");
+    newDiv.id = "new_steps_div";
+    newDiv.style.display = "block";
+    newDiv.style.textAlign = "center";
+    newDiv.innerHTML = div.innerHTML;
+    document.body.appendChild(newDiv);
 
-function display(matrix) {
-    console.log(matrix);
+    var children = newDiv.childNodes;
+    for(var k = 0; k < children.length; k++) {
+        var str = children[k].innerHTML;
+        var entries = str.split(',');
+        var para = document.createElement("p");
+
+        for(var i = 0; i < r; i++) {
+            for(var j = 0; j < c; j++) {
+                var el = document.createElement("input");
+                el.name = "entry";
+                el.type = "text";
+                el.readOnly = true;
+                el.className = "steps_entries";
+                el.setAttribute("value", entries[i*c + j]+"");
+                para.appendChild(el);
+            }
+            // new line after each row
+            var br = document.createElement("br");
+            para.appendChild(br);
+        }
+        children[k].innerHTML = para.innerHTML;
+    }
+    document.body.removeChild(div);
+
+    window.location = "equations.html#new_steps_div";
 }
 //=====================================================================================================================
 function fill(row, col) {
-    var coeff;
-    if(row == 3 && col == 4) {
-        coeff = [[1, -2, 3, 7], [2, 1, 1, 4], [-3, 2, -2, -10]];
-    }
-    else if(row == 3 && col == 3) {
-        coeff = [[1, 1, 1], [2, 1, 4], [-1, 0, 1]];
-    }
-    else if(row == 2 && col == 4) {
-        coeff = [[2, -4, 3, 4], [3, -1, 1, 4]];
-    }
-
     for (var i = 0; i < row; i++) {
         for (var j = 0; j < col; j++) {
             var entries = document.getElementsByName("entry");
-            entries.item(i*(col) + j).value = coeff[i][j];
+            entries.item(i*(col) + j).value = Math.round(Math.random()*100);
         }
     }
 }
-

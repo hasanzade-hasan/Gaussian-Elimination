@@ -133,20 +133,20 @@ function generate_matrix() {
 }
 // changing matrix to standard form which is like Ax<b or Ax<=b
 function standardize(matrix, signs) {
-    var r = matrix.length;
-    var c = matrix[0].length;
-    for (var i = 0; i < r; i++) {
-        if(signs[i] == "great") {
-            for(var j = 0; j < c; j++) {
-                matrix[i][j] *= -1;
+    var r = matrix.length;                  // number of rows
+    var c = matrix[0].length;               // number of columns
+    for (var i = 0; i < r; i++) {           // for each inequality
+        if(signs[i] == "great") {           // if symbol is >
+            for(var j = 0; j < c; j++) {    // multiply left hand side
+                matrix[i][j] *= -1;         // by -1
             }
-            signs[i] = "less";
+            signs[i] = "less";              // change symbol to <
         }
-        else if(signs[i] == "greatEqual") {
-            for(j = 0; j < c; j++) {
-                matrix[i][j] *= -1;
+        else if(signs[i] == "greatEqual") { // if symbol is >=
+            for(j = 0; j < c; j++) {        // multiply left hand side
+                matrix[i][j] *= -1;         // by -1
             }
-            signs[i] = "lessEqual";
+            signs[i] = "lessEqual";         // change symbol to <=
         }
     }
 }
@@ -237,60 +237,65 @@ function analyse() {
     document.body.appendChild(para);
     document.getElementById("standard").innerHTML = "<hr> System in standard form is: " + "<br />" + display(matrix, signs);
 
-    // get list of eliminable and non-eliminable variables
-    var eliminable = [];
-    var nonEliminable = [];
-    //var nonEliminable = new Array(); // do I really need that? or just one list is enough?
-    for (j = 0; j < c; j++) {
-        if (matrix[0][j] < 0) {
-            for (i = 1; i < r; i++) {
-                if (matrix[i][j] > 0) {
-                    eliminable.push(j);
-                    break;
+    // get list of nonPure and pure variables
+    var pure = [];                      // list of pure variables
+    var nonPure = [];                   // list of non-pure variables
+    for (j = 0; j < c; j++) {           // for all variables
+        if (matrix[0][j] < 0) {         // if 1st coefficient is negative
+            for (i = 1; i < r; i++) {   // for all other coefficients
+                if (matrix[i][j] > 0) { // if there exists a positive
+                    nonPure.push(j);    // then it is non-pure
+                    break;              // we are done
                 }
             }
         }
-        else if (matrix[0][j] > 0) {
-            for (i = 1; i < r; i++) {
-                if (matrix[i][j] < 0) {
-                    eliminable.push(j);
-                    break;
+        else if (matrix[0][j] > 0) {    // if 1st coefficient is positive
+            for (i = 1; i < r; i++) {   // for all other coefficients
+                if (matrix[i][j] < 0) { // if there exists a negative
+                    nonPure.push(j);    // then it is non-pure
+                    break;              // we are done
                 }
             }
         }
     }
 
-    // print eliminable and non-eliminable variables
+    //for(i = 0; i < c; i++) {            // looking from all variables
+    //    if (nonPure.indexOf(i) == -1)   // if variable is not non-pure
+    //        pure.push(i);               // it is pure
+    //}
+
+
+    // print nonPure and pure variables
     var strEl = "";
     var strNonEl = "";
     for(i = 0; i < c; i++) {
-        if(eliminable.indexOf(i) > -1)
+        if(nonPure.indexOf(i) > -1)
             strEl += "X" + (i + 1) + ", ";
         else {
             strNonEl += "X" + (i + 1) + ", ";
-            nonEliminable.push(i);
+            pure.push(i);
         }
     }
     var nonEl = document.createElement("p");
     nonEl.id = "nonEl";
     document.body.appendChild(nonEl);
-    document.getElementById("nonEl").innerHTML = "Non-Eliminable variables are: {" + strNonEl.substr(0, strNonEl.length-2) + "}";
+    document.getElementById("nonEl").innerHTML = "Pure variables are: {" + strNonEl.substr(0, strNonEl.length-2) + "}";
     var el = document.createElement("p");
     el.id = "el";
     document.body.appendChild(el);
-    document.getElementById("el").innerHTML = "Eliminable variables are: {" + strEl.substr(0, strEl.length-2) + "}";
+    document.getElementById("el").innerHTML = "Non-pure variables are: {" + strEl.substr(0, strEl.length-2) + "}";
 
     var order = document.createElement("p");
     order.id = "order";
     document.body.appendChild(order);
     document.getElementById("order").innerHTML = "<hr> List variables by id in order to be evaluated. " +
-        "By definition non-eliminable variables must be evaluated before eliminable varibales <br/>";
+        "By definition non-nonPure variables must be evaluated before nonPure varibales <br/>";
 
     var orderNonEl = document.createElement("p");
     orderNonEl.id = "orderNonEl";
     document.body.appendChild(orderNonEl);
-    document.getElementById("orderNonEl").innerHTML = "Order of non-eliminable variables: ";
-    for(i = 0; i < nonEliminable.length; i++) {
+    document.getElementById("orderNonEl").innerHTML = "Order of pure variables: ";
+    for(i = 0; i < pure.length; i++) {
         element = document.createElement("input");
         element.size = "5";
         element.name = "NonElOrder";
@@ -300,8 +305,8 @@ function analyse() {
     var orderEl = document.createElement("p");
     orderEl.id = "orderEl";
     document.body.appendChild(orderEl);
-    document.getElementById("orderEl").innerHTML = "Order of eliminable variables: ";
-    for(i = 0; i < eliminable.length; i++) {
+    document.getElementById("orderEl").innerHTML = "Order of non-pure variables: ";
+    for(i = 0; i < nonPure.length; i++) {
         var element = document.createElement("input");
         element.size = "5";
         element.name = "elOrder";
@@ -317,7 +322,7 @@ function analyse() {
     button.type = "button";
     button.name = "evaluate";
     button.value = "Start evaluation";
-    button.onclick = function() {evaluate(matrix, signs, eliminable, nonEliminable)};
+    button.onclick = function() {evaluate(matrix, signs, nonPure, pure)};
     document.body.appendChild(button);
 }
 // matrix multiplication
@@ -364,35 +369,35 @@ function eliminateVariable(matrix, signs, eliminationVar) {
         }
     }
 
-    var mulMatrix = [];
-    var mulSigns = [];
+    var auxMatrix = [];
+    var auxSigns = [];
+    for(i = 0; i < posMatrix.length; i++) {                         // for each element of posMatrix
+        for (var j = 0; j < negMatrix.length; j++) {                // for each element of negMatrix
+            var row = new Array(r);                                 // create a row
+            row.fill(0);                                            // with all elements = 0, except 2
+            row[i] = -1 * negMatrix[j][eliminationVar];             // change 1st different element
+            row[j+posMatrix.length] = posMatrix[i][eliminationVar]; // change 2nd different element
+            auxMatrix.push(row);                                    // add this row to auxiliary matrix
 
-    for(i = 0; i < posMatrix.length; i++) {
-        for (var j = 0; j < negMatrix.length; j++) {
-            var row = new Array(r);
-            row.fill(0);
-            row[i] = -1 * negMatrix[j][eliminationVar];
-            row[j+posMatrix.length] = posMatrix[i][eliminationVar];
-            mulMatrix.push(row);
-
+            // consider symbols as well
             if(posSigns[i] == "lessEqual" && negSigns[j] == "lessEqual")
-                mulSigns.push("lessEqual");
+                auxSigns.push("lessEqual");
             else
-                mulSigns.push("less");
+                auxSigns.push("less");
         }
     }
 
     for(i = 0; i < zeroMatrix.length; i++) {
-        // consider 0's here and push to mulMatrix
+        // consider 0's here and push to auxMatrix
         row = new Array(r);
         row.fill(0);
         // this is to avoid altering other inequalities which current variable does not exist
         row[posMatrix.length + negMatrix.length + i] = 1; // keep them same
-        mulMatrix.push(row);
-        mulSigns.push(zeroSigns[i]);
+        auxMatrix.push(row);
+        auxSigns.push(zeroSigns[i]);
     }
 
-    // since I created my mulMatrix according to pos neg and zero, I need to change my matrix for that too
+    // since I created my auxMatrix according to pos neg and zero, I need to change my matrix for that too
     var newMatrix = [];
     for (i = 0; i < posMatrix.length; i++)
         newMatrix.push(posMatrix[i]);
@@ -401,7 +406,7 @@ function eliminateVariable(matrix, signs, eliminationVar) {
     for (i = 0; i < zeroMatrix.length; i++)
         newMatrix.push(zeroMatrix[i]);
 
-    return [multiply(mulMatrix, newMatrix), mulSigns];
+    return [multiply(auxMatrix, newMatrix), auxSigns];
 }
 // evaluates to find ranges for variables
 function evaluateVariable(matrix, signs, evaluationVar) {
